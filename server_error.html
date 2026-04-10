@@ -1,0 +1,28 @@
+
+        <!DOCTYPE html>
+        <html lang="en">
+          <head>
+            <meta charset="UTF-8" />
+            <title>Error</title>
+            <script type="module">
+              const error = {"message":"Cannot find package 'hono' imported from C:\\Users\\shafi\\Downloads\\number\\anything\\apps\\web\\node_modules\\@hono\\auth-js\\dist\\index.js","stack":"    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:301:9)\n    at packageResolve (node:internal/modules/esm/resolve:768:81)\n    at moduleResolve (node:internal/modules/esm/resolve:859:18)\n    at defaultResolve (node:internal/modules/esm/resolve:991:11)\n    at ModuleLoader.#cachedDefaultResolve (node:internal/modules/esm/loader:719:20)\n    at ModuleLoader.#resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)\n    at ModuleLoader.#resolve (node:internal/modules/esm/loader:701:17)\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33)\n    at ModuleJob.link (node:internal/modules/esm/module_job:245:17)\n    at new ModuleJob (node:internal/modules/esm/module_job:224:26)\n    at ModuleLoader.#getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:590:11)\n    at afterResolve (node:internal/modules/esm/loader:625:52)\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:631:12)\n    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:650:32)\n    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)\n    at ModuleLoader.import (node:internal/modules/esm/loader:646:21)\n    at defaultImportModuleDynamicallyForModule (node:internal/modules/esm/utils:225:31)\n    at importModuleDynamicallyCallback (node:internal/modules/esm/utils:267:12)\n    at ESModulesEvaluator.runExternalModule (file:///C:/Users/shafi/Downloads/number/anything/apps/web/node_modules/vite/dist/node/module-runner.js:1079:19)\n    at SSRCompatModuleRunner.directRequest (file:///C:/Users/shafi/Downloads/number/anything/apps/web/node_modules/vite/dist/node/module-runner.js:1233:45)\n    at SSRCompatModuleRunner.directRequest (file:///C:/Users/shafi/Downloads/number/anything/apps/web/node_modules/vite/dist/node/chunks/dep-Dq2t6Dq0.js:25271:20)\n    at SSRCompatModuleRunner.cachedRequest (file:///C:/Users/shafi/Downloads/number/anything/apps/web/node_modules/vite/dist/node/module-runner.js:1179:28)\n    at request (file:///C:/Users/shafi/Downloads/number/anything/apps/web/node_modules/vite/dist/node/module-runner.js:1228:79)\n    at C:\\Users\\shafi\\Downloads\\number\\anything\\apps\\web\\__create\\index.ts:5:1\n    at ESModulesEvaluator.runInlinedModule (file:///C:/Users/shafi/Downloads/number/anything/apps/web/node_modules/vite/dist/node/module-runner.js:1062:5)\n    at SSRCompatModuleRunner.directRequest (file:///C:/Users/shafi/Downloads/number/anything/apps/web/node_modules/vite/dist/node/module-runner.js:1284:61)\n    at SSRCompatModuleRunner.directRequest (file:///C:/Users/shafi/Downloads/number/anything/apps/web/node_modules/vite/dist/node/chunks/dep-Dq2t6Dq0.js:25274:23)\n    at SSRCompatModuleRunner.cachedRequest (file:///C:/Users/shafi/Downloads/number/anything/apps/web/node_modules/vite/dist/node/module-runner.js:1180:76)\n    at SSRCompatModuleRunner.import (file:///C:/Users/shafi/Downloads/number/anything/apps/web/node_modules/vite/dist/node/module-runner.js:1117:12)\n    at instantiateModule (file:///C:/Users/shafi/Downloads/number/anything/apps/web/node_modules/vite/dist/node/chunks/dep-Dq2t6Dq0.js:25231:12)\n    at loadModule (file:///C:/Users/shafi/Downloads/number/anything/apps/web/node_modules/@hono/vite-dev-server/dist/dev-server.js:109:29)\n    at file:///C:/Users/shafi/Downloads/number/anything/apps/web/node_modules/@hono/vite-dev-server/dist/dev-server.js:126:19","frame":""}
+              try {
+                const { ErrorOverlay } = await import("/@vite/client")
+                document.body.appendChild(new ErrorOverlay(error))
+              } catch {
+                const h = (tag, text) => {
+                  const el = document.createElement(tag)
+                  el.textContent = text
+                  return el
+                }
+                document.body.appendChild(h('h1', 'Internal Server Error'))
+                document.body.appendChild(h('h2', error.message))
+                document.body.appendChild(h('pre', error.stack))
+                document.body.appendChild(h('p', '(Error overlay failed to load)'))
+              }
+            </script>
+          </head>
+          <body>
+          </body>
+        </html>
+      
