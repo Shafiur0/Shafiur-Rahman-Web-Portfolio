@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Link2, Pencil, Plus, Trash2, Upload, X } from "lucide-react";
 import useUpload from "@/utils/useUpload";
 
-const URL_REGEX = /(https?:\/\/[^\s)]+|www\.[^\s)]+)/i;
+const URL_REGEX = /(https?:\/\/[^\s)]+|www\.[^\s)]+|data:[^\s)]+|blob:[^\s)]+)/i;
 
 const isCertificateEntry = (item) =>
   /certificate|certification|credential/i.test(String(item?.icon || ""));

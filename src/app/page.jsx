@@ -27,7 +27,7 @@ const NAV_ITEMS = [
   { label: "Contact", href: "#contact" },
 ];
 
-const URL_REGEX = /(https?:\/\/[^\s)]+|www\.[^\s)]+)/i;
+const URL_REGEX = /(https?:\/\/[^\s)]+|www\.[^\s)]+|data:[^\s)]+|blob:[^\s)]+)/i;
 
 function getFirstUrlFromText(text) {
   if (typeof text !== "string") return "";
@@ -276,8 +276,7 @@ export default function HomePage() {
         description: stripFirstUrlFromText(achievement.description || ""),
         href,
       };
-    })
-    .filter((certificate) => Boolean(certificate.href));
+    });
 
   const openImageZoom = (src, alt) => {
     if (!src) return;
@@ -791,22 +790,40 @@ export default function HomePage() {
           </div>
 
           {certificateItems.length === 0 ? (
-            <p className="text-white/50">No certificate links added yet.</p>
+            <p className="text-white/50">No certificates added yet.</p>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {certificateItems.map((certificate) => (
-                <a
-                  key={certificate.id}
-                  href={certificate.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-[#A855F7]/50 hover:bg-white/10 transition-colors"
-                >
-                  <h3 className="text-xl font-bold text-white mb-2">{certificate.title}</h3>
-                  <p className="text-sm uppercase tracking-widest text-[#3B82F6] mb-3">{certificate.issuer}</p>
-                  <p className="text-white/60 text-sm line-clamp-3">{certificate.description || "Open credential"}</p>
-                </a>
-              ))}
+              {certificateItems.map((certificate) => {
+                const cardClassName =
+                  "block bg-white/5 border border-white/10 rounded-2xl p-6 transition-colors " +
+                  (certificate.href
+                    ? "hover:border-[#A855F7]/50 hover:bg-white/10"
+                    : "opacity-95");
+
+                if (certificate.href) {
+                  return (
+                    <a
+                      key={certificate.id}
+                      href={certificate.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cardClassName}
+                    >
+                      <h3 className="text-xl font-bold text-white mb-2">{certificate.title}</h3>
+                      <p className="text-sm uppercase tracking-widest text-[#3B82F6] mb-3">{certificate.issuer}</p>
+                      <p className="text-white/60 text-sm line-clamp-3">{certificate.description || "Open credential"}</p>
+                    </a>
+                  );
+                }
+
+                return (
+                  <div key={certificate.id} className={cardClassName}>
+                    <h3 className="text-xl font-bold text-white mb-2">{certificate.title}</h3>
+                    <p className="text-sm uppercase tracking-widest text-[#3B82F6] mb-3">{certificate.issuer}</p>
+                    <p className="text-white/60 text-sm line-clamp-3">{certificate.description || "Certificate added from admin panel"}</p>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
