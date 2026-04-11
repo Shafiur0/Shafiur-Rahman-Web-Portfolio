@@ -13,6 +13,9 @@ import { nextPublicProcessEnv } from './plugins/nextPublicProcessEnv';
 import { restart } from './plugins/restart';
 import { restartEnvFileChange } from './plugins/restartEnvFileChange';
 
+const useHonoServerPlugin =
+  process.env.VERCEL !== '1' && process.env.VERCEL !== 'true';
+
 export default defineConfig({
   // Keep them available via import.meta.env.NEXT_PUBLIC_*
   envPrefix: 'NEXT_PUBLIC_',
@@ -35,10 +38,14 @@ export default defineConfig({
   plugins: [
     nextPublicProcessEnv(),
     restartEnvFileChange(),
-    reactRouterHonoServer({
-      serverEntryPoint: './__create/index.ts',
-      runtime: 'node',
-    }),
+    ...(useHonoServerPlugin
+      ? [
+          reactRouterHonoServer({
+            serverEntryPoint: './__create/index.ts',
+            runtime: 'node',
+          }),
+        ]
+      : []),
     babel({
       include: ['src/**/*.{js,jsx,ts,tsx}'], // or RegExp: /src\/.*\.[tj]sx?$/
       exclude: /node_modules/, // skip everything else
