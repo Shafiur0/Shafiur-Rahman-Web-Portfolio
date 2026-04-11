@@ -5,6 +5,7 @@ import { renderToString } from 'react-dom/server';
 import routes from '../../../routes';
 import { serializeError } from 'serialize-error';
 import cleanStack from 'clean-stack';
+import { createRouteHandlers } from '@/app/api/utils/react-router-method-adapter';
 
 function serializeClean(err) {
 	// if we want to clean this more, maybe we should look at the file where it
@@ -63,4 +64,14 @@ export async function GET(request) {
 		})
 		.filter((result) => result !== null);
 	return Response.json({ results: cleanedResults });
+}
+
+const routeHandlers = createRouteHandlers({ GET });
+
+export async function loader(args) {
+	return routeHandlers.loader(args);
+}
+
+export async function action(args) {
+	return routeHandlers.action(args);
 }

@@ -1,4 +1,5 @@
 import sql from "@/app/api/utils/sql";
+import { createRouteHandlers } from "@/app/api/utils/react-router-method-adapter";
 
 export async function GET() {
   try {
@@ -45,4 +46,14 @@ export async function POST(request) {
       { status: 500 },
     );
   }
+}
+
+const routeHandlers = createRouteHandlers({ GET, POST });
+
+export async function loader(args) {
+  return routeHandlers.loader(args);
+}
+
+export async function action(args) {
+  return routeHandlers.action(args);
 }

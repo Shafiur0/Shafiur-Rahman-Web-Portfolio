@@ -1,4 +1,5 @@
 import { getToken } from '@auth/core/jwt';
+import { createRouteHandlers } from '@/app/api/utils/react-router-method-adapter';
 export async function GET(request) {
 	const [token, jwt] = await Promise.all([
 		getToken({
@@ -60,4 +61,14 @@ export async function GET(request) {
 			},
 		}
 	);
+}
+
+const routeHandlers = createRouteHandlers({ GET });
+
+export async function loader(args) {
+	return routeHandlers.loader(args);
+}
+
+export async function action(args) {
+	return routeHandlers.action(args);
 }

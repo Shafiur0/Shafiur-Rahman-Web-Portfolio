@@ -1,3 +1,5 @@
+import { createRouteHandlers } from '@/app/api/utils/react-router-method-adapter';
+
 const ALLOWED_PROVIDERS = new Set(['google', 'facebook', 'twitter', 'apple']);
 
 export function GET(request) {
@@ -21,4 +23,14 @@ export function GET(request) {
 	if (!process.env[clientSecret]) missing.push(clientSecret);
 
 	return Response.json({ provider, missing });
+}
+
+const routeHandlers = createRouteHandlers({ GET });
+
+export async function loader(args) {
+	return routeHandlers.loader(args);
+}
+
+export async function action(args) {
+	return routeHandlers.action(args);
 }
