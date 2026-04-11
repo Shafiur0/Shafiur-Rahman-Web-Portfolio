@@ -46,6 +46,14 @@ function toExternalUrl(value) {
   return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
 
+function toMediaUrl(value) {
+  if (!value || typeof value !== "string") return "";
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  if (/^(data|blob):/i.test(trimmed)) return trimmed;
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
 function isCertificateEntry(item) {
   return /certificate|certification|credential/i.test(String(item?.icon || ""));
 }
@@ -137,6 +145,11 @@ export default function HomePage() {
   const photoUrl =
     profile.photo_url ||
     "https://ucarecdn.com/f7c7966c-96e4-46a8-80c8-96c835ab609c/-/format/auto/";
+  const achievementSlidePhoto = toMediaUrl(
+    profile.achievement_photo_url ||
+      profile.achievement_slide_photo_url ||
+      profile.achievements_photo_url,
+  );
   const fullName = profile.full_name || "Shafiur Rahman";
   const headline = profile.headline || "Web Developer";
   const contactEmail = profile.email || "shafiurrahman067@gmail.com";
@@ -612,6 +625,16 @@ export default function HomePage() {
                  Achievements & Milestones
                </h2>
             </div>
+
+            {achievementSlidePhoto && (
+              <div className="mb-12 rounded-2xl overflow-hidden border border-white/15 bg-white/5">
+                <img
+                  src={achievementSlidePhoto}
+                  alt="Achievement slide"
+                  className="w-full h-52 md:h-72 object-cover"
+                />
+              </div>
+            )}
 
             {timelineAchievements.length === 0 ? (
               <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
