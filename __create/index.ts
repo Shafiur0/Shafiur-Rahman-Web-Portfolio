@@ -4,7 +4,6 @@ import { skipCSRFCheck } from '@auth/core';
 import Credentials from '@auth/core/providers/credentials';
 import { authHandler, initAuthConfig } from '@hono/auth-js';
 import { Pool, neonConfig } from '@neondatabase/serverless';
-import { hash, verify } from 'argon2';
 import { Hono } from 'hono';
 import { contextStorage, getContext } from 'hono/context-storage';
 import { cors } from 'hono/cors';
@@ -17,7 +16,7 @@ import ws from 'ws';
 import NeonAdapter from './adapter';
 import { getHTMLForErrorPage } from './get-html-for-error-page';
 import { isAuthAction } from './is-auth-action';
-import { API_BASENAME, api } from './route-builder';
+import { API_BASENAME, api, registerRoutesPromise } from './route-builder';
 neonConfig.webSocketConstructor = ws;
 
 const als = new AsyncLocalStorage<{ requestId: string }>();
@@ -204,7 +203,14 @@ if (process.env.AUTH_SECRET) {
               return null;
             }
 
-            const isValid = await verify(accountPassword, password);
+            let isValid = false;
+            try {
+              const { verify } = await import('argon2');
+              isValid = await verify(accountPassword, password);
+            } catch (error) {
+              console.error('Failed to load argon2 verify:', error);
+              return null;
+            }
             if (!isValid) {
               return null;
             }
@@ -240,6 +246,15 @@ if (process.env.AUTH_SECRET) {
             // logic to verify if user exists
             const user = await adapter.getUserByEmail(email);
             if (!user) {
+              let passwordHash: string;
+              try {
+                const { hash } = await import('argon2');
+                passwordHash = await hash(password);
+              } catch (error) {
+                console.error('Failed to load argon2 hash:', error);
+                return null;
+              }
+
               const newUser = await adapter.createUser({
                 emailVerified: null,
                 email,
@@ -248,7 +263,7 @@ if (process.env.AUTH_SECRET) {
               });
               await adapter.linkAccount({
                 extraData: {
-                  password: await hash(password),
+                  password: passwordHash,
                 },
                 type: 'credentials',
                 userId: newUser.id,
@@ -293,7 +308,10 @@ app.use('/api/auth/*', async (c, next) => {
 });
 app.route(API_BASENAME, api);
 
-export default await createHonoServer({
+export default createHonoServer({
   app,
   defaultLogger: false,
+  beforeAll: async () => {
+    await registerRoutesPromise;
+  },
 });
