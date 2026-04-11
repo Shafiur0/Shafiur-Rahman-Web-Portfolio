@@ -23,6 +23,7 @@ const initialFormData = {
   title: "",
   description: "",
   date: "",
+  award: "",
   link_url: "",
   display_order: 0,
 };
@@ -66,7 +67,11 @@ export default function AchievementsManager({ onDataChange }) {
       date: formData.date.trim(),
       icon: "award",
       display_order: Number(formData.display_order) || 0,
-      description: [formData.description.trim(), formData.link_url.trim()]
+      description: [
+        formData.award.trim() ? `Award: ${formData.award.trim()}` : "",
+        formData.description.trim(),
+        formData.link_url.trim(),
+      ]
         .filter(Boolean)
         .join("\n"),
     };
@@ -108,10 +113,21 @@ export default function AchievementsManager({ onDataChange }) {
 
   const handleEdit = (achievement) => {
     const linkUrl = extractUrl(achievement.description);
+    const cleanedDescription = stripFirstUrl(achievement.description || "");
+    const lines = cleanedDescription
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+    let award = "";
+    if (lines.length > 0 && /^award\s*:/i.test(lines[0])) {
+      award = lines.shift().replace(/^award\s*:/i, "").trim();
+    }
+
     setFormData({
       title: achievement.title,
-      description: stripFirstUrl(achievement.description || ""),
+      description: lines.join("\n"),
       date: achievement.date || "",
+      award,
       link_url: linkUrl,
       display_order: achievement.display_order,
     });
@@ -170,15 +186,27 @@ export default function AchievementsManager({ onDataChange }) {
           />
         </div>
 
-        <input
-          type="text"
-          value={formData.link_url}
-          onChange={(e) =>
-            setFormData({ ...formData, link_url: e.target.value })
-          }
-          className="w-full rounded-lg bg-[#12213e] border border-cyan-500/20 px-4 py-2.5 text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-cyan-400"
-          placeholder="Achievement link (optional)"
-        />
+        <div className="grid md:grid-cols-2 gap-4">
+          <input
+            type="text"
+            value={formData.award}
+            onChange={(e) =>
+              setFormData({ ...formData, award: e.target.value })
+            }
+            className="w-full rounded-lg bg-[#12213e] border border-cyan-500/20 px-4 py-2.5 text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-cyan-400"
+            placeholder="award"
+          />
+
+          <input
+            type="text"
+            value={formData.link_url}
+            onChange={(e) =>
+              setFormData({ ...formData, link_url: e.target.value })
+            }
+            className="w-full rounded-lg bg-[#12213e] border border-cyan-500/20 px-4 py-2.5 text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-cyan-400"
+            placeholder="Achievement link"
+          />
+        </div>
 
         <textarea
           value={formData.description}

@@ -7,7 +7,9 @@ import {
   Linkedin,
   Facebook,
   Instagram,
+  MapPin,
   MessageCircle,
+  Phone,
   Eye,
   Calendar,
   ChevronDown,
@@ -17,12 +19,11 @@ import {
 
 const NAV_ITEMS = [
   { label: "Home", href: "#home" },
+  { label: "Skills", href: "#services" },
   { label: "Projects", href: "#portfolio" },
   { label: "Achievements", href: "#achievements" },
-  { label: "Skills", href: "#services" },
   { label: "Certificates", href: "#certificates" },
   { label: "Contact", href: "#contact" },
-  { label: "About", href: "#about" },
 ];
 
 const URL_REGEX = /(https?:\/\/[^\s)]+|www\.[^\s)]+)/i;
@@ -58,6 +59,14 @@ function toWhatsAppHref(value) {
   return `https://wa.me/${digits}`;
 }
 
+function toScore(value, fallback = 80) {
+  const numeric = Number(value);
+  if (Number.isFinite(numeric)) {
+    return Math.max(1, Math.min(100, Math.round(numeric)));
+  }
+  return fallback;
+}
+
 export default function HomePage() {
   const [skills, setSkills] = useState([]);
   const [projects, setProjects] = useState([]);
@@ -66,12 +75,15 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [visibleSections, setVisibleSections] = useState({});
+  const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
+  const [contactSending, setContactSending] = useState(false);
+  const [contactFeedback, setContactFeedback] = useState("");
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
       
-      const sections = ['home', 'portfolio', 'achievements', 'services', 'certificates', 'contact', 'about'];
+      const sections = ['home', 'services', 'portfolio', 'achievements', 'certificates', 'contact', 'about'];
       const newVisible = {};
       sections.forEach(id => {
         const el = document.getElementById(id);
@@ -128,6 +140,7 @@ export default function HomePage() {
   const fullName = profile.full_name || "Shafiur Rahman";
   const headline = profile.headline || "Web Developer";
   const contactEmail = profile.email || "shafiurrahman067@gmail.com";
+  const contactPhone = profile.phone || "01944023602";
   const contactLocation = profile.location || "Dhaka, Bangladesh";
   const whatsappNumber = profile.whatsapp || profile.phone || "+8801758958055";
   const whatsappHref = toWhatsAppHref(whatsappNumber);
@@ -157,11 +170,47 @@ export default function HomePage() {
     },
   ].filter((item) => Boolean(item.href));
 
+  const socialPills = [
+    { label: "GitHub", href: toExternalUrl(profile.github_url) || "https://github.com/Shafiur0" },
+    {
+      label: "LinkedIn",
+      href:
+        toExternalUrl(profile.linkedin_url) ||
+        "https://www.linkedin.com/in/shafiur-rahman-871683347/",
+    },
+    {
+      label: "Facebook",
+      href:
+        toExternalUrl(profile.facebook_url) ||
+        "https://www.facebook.com/share/1CWr8Wod8K/",
+    },
+    {
+      label: "Instagram",
+      href:
+        toExternalUrl(profile.instagram_url) ||
+        "https://www.instagram.com/shafiurshafim?igsh=MTUyaDdoYnNuODhpeg==",
+    },
+    { label: "X", href: toExternalUrl(profile.x_url) || "https://x.com/Shafiur792" },
+    { label: "WhatsApp", href: whatsappHref },
+  ].filter((item) => Boolean(item.href));
+
   const skillsByCategory = skills.reduce((acc, skill) => {
     if (!acc[skill.category]) acc[skill.category] = [];
     acc[skill.category].push(skill);
     return acc;
   }, {});
+
+  const skillCategoryCards = Object.entries(skillsByCategory).map(
+    ([category, categorySkills]) => ({
+      category,
+      skills: categorySkills
+        .map((skill) => ({
+          ...skill,
+          score: toScore(skill.display_order),
+        }))
+        .sort((a, b) => b.score - a.score),
+    }),
+  );
 
   const timelineAchievements = achievements.filter(
     (achievement) => !isCertificateEntry(achievement),
@@ -199,6 +248,41 @@ export default function HomePage() {
     })
     .filter((certificate) => Boolean(certificate.href));
 
+  const handleContactSubmit = async (event) => {
+    event.preventDefault();
+    setContactFeedback("");
+
+    const name = contactForm.name.trim();
+    const email = contactForm.email.trim();
+    const message = contactForm.message.trim();
+
+    if (!name || !email || !message) {
+      setContactFeedback("Please fill in name, email, and message.");
+      return;
+    }
+
+    setContactSending(true);
+    try {
+      const response = await fetch("/api/portfolio/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, message }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send message");
+      }
+
+      setContactForm({ name: "", email: "", message: "" });
+      setContactFeedback("Message sent successfully.");
+    } catch (error) {
+      console.error("Error sending contact message:", error);
+      setContactFeedback("Failed to send message. Please try again.");
+    } finally {
+      setContactSending(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#000428] flex items-center justify-center">
@@ -225,8 +309,8 @@ export default function HomePage() {
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          <div className="text-xl font-bold text-white hover:text-[#A855F7] transition-colors cursor-pointer tracking-wider">
-            SHAFIUR.
+          <div className="text-2xl font-bold bg-gradient-to-r from-[#A855F7] to-[#38BDF8] text-transparent bg-clip-text transition-colors cursor-pointer tracking-tight">
+            {fullName}
           </div>
           <div className="hidden md:flex items-center gap-10">
             {NAV_ITEMS.map((item) => (
@@ -254,83 +338,64 @@ export default function HomePage() {
         id="home"
         className="min-h-screen flex items-center justify-center relative z-10 pt-20"
       >
-        <div className="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
-          <div className="text-left animate-fade-in-up" style={{ animationDuration: '0.8s', animationFillMode: 'both' }}>
-            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-md">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]"></span>
-              </span>
-              <span className="text-[11px] font-semibold text-white/80 tracking-widest uppercase">
-                Available for New Projects
-              </span>
-            </div>
-
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 tracking-tight leading-tight">
-              <span className="text-white/90">Hi, I'm </span>
-              <br />
-              <span className="bg-gradient-to-r from-[#3B82F6] to-[#A855F7] text-transparent bg-clip-text">
-                {fullName}
-              </span>
-            </h1>
-
-            <p className="text-lg md:text-xl text-white/60 max-w-lg mb-10 leading-relaxed font-light">
-              {headline} - {bio}
-            </p>
-
-            <div className="flex flex-wrap items-center gap-5">
-              <a
-                href="#portfolio"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#3B82F6] to-[#A855F7] text-white rounded-full font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-[#A855F7]/25"
-              >
-                View Selected Works
-                <ArrowRight size={18} />
-              </a>
-              {cvUrl && (
-                <>
-                  <a
-                    href={cvUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-6 py-4 bg-white/10 border border-white/20 rounded-full font-semibold hover:bg-white/20 transition-colors"
-                  >
-                    View CV
-                  </a>
-                  <a
-                    href={cvUrl}
-                    download
-                    className="inline-flex items-center gap-2 px-6 py-4 bg-white/10 border border-white/20 rounded-full font-semibold hover:bg-white/20 transition-colors"
-                  >
-                    Download CV
-                  </a>
-                </>
-              )}
-              <div className="flex items-center gap-4 ml-4">
-                {socialLinks.slice(0, 2).map(({ href, icon: Icon }) => (
-                  <a
-                    key={href}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center transition-all hover:-translate-y-1 hover:bg-white/10 text-white/60 hover:text-white"
-                  >
-                    <Icon size={20} />
-                  </a>
-                ))}
-              </div>
-            </div>
+        <div className="max-w-5xl mx-auto px-6 text-center animate-fade-in-up" style={{ animationDuration: '0.8s', animationFillMode: 'both' }}>
+          <div className="text-[10px] md:text-xs font-semibold text-[#67E8F9] tracking-[0.3em] uppercase mb-6">
+            Welcome to my portfolio
           </div>
-          
-          {/* Right side hero visual placeholder/image */}
-          <div className="hidden lg:block relative group animate-fade-in-up" style={{ animationDuration: '1s', animationDelay: '0.3s', animationFillMode: 'both' }}>
-             <div className="absolute inset-0 bg-gradient-to-tr from-[#3B82F6] to-[#A855F7] rounded-[2rem] blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-700"></div>
-             <div className="relative rounded-[2rem] overflow-hidden border border-white/10 bg-white/5 aspect-[4/5] isolate p-2">
-                <img
-                  src={photoUrl}
-                  alt="Shafiur Rahman"
-                  className="w-full h-full object-cover rounded-3xl grayscale-[20%] group-hover:grayscale-0 transition-all duration-700 hover:scale-105"
-                />
-             </div>
+
+          <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight leading-tight">
+            <span className="text-white/95">Hi, I'm</span>
+            <br />
+            <span className="bg-gradient-to-r from-[#A855F7] to-[#38BDF8] text-transparent bg-clip-text">
+              {fullName}
+            </span>
+          </h1>
+
+          <p className="text-base md:text-2xl text-white/65 max-w-3xl mx-auto mb-8 leading-relaxed font-light">
+            {headline} - {bio}
+          </p>
+
+          <div className="w-28 h-28 mx-auto rounded-2xl overflow-hidden border border-white/20 bg-white/5 mb-8">
+            <img
+              src={photoUrl}
+              alt="Shafiur Rahman"
+              className="w-full h-full object-cover"
+            />
+          </div>
+
+          <div className="flex flex-wrap justify-center items-center gap-3 md:gap-4">
+            <a
+              href="#contact"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#A855F7] to-[#38BDF8] text-white rounded-xl font-semibold transition-all hover:scale-105 active:scale-95"
+            >
+              Get In Touch
+            </a>
+            <a
+              href="#portfolio"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 border border-white/20 rounded-xl font-semibold hover:bg-white/20 transition-colors"
+            >
+              View My Work
+              <ArrowRight size={16} />
+            </a>
+            {cvUrl && (
+              <>
+                <a
+                  href={cvUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 border border-white/20 rounded-xl font-semibold hover:bg-white/20 transition-colors"
+                >
+                  View CV
+                </a>
+                <a
+                  href={cvUrl}
+                  download
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#06B6D4] text-[#041c2f] rounded-xl font-semibold hover:bg-[#22D3EE] transition-colors"
+                >
+                  Download CV
+                </a>
+              </>
+            )}
           </div>
         </div>
 
@@ -384,35 +449,45 @@ export default function HomePage() {
       {/* 3. Services / Arsenal Section */}
       <section id="services" className={`py-32 relative z-10 w-full transition-all duration-1000 transform ${visibleSections['services'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
         <div className="max-w-6xl mx-auto px-6">
-          <div className="mb-16">
-             <div className="text-sm tracking-[0.3em] font-medium text-[#3B82F6] uppercase mb-4">— EXPERTISE</div>
-             <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-white/50 text-transparent bg-clip-text">
-               Core Technologies
+          <div className="mb-12 text-center">
+             <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
+               Skills & Expertise
              </h2>
+             <p className="text-white/50">Technologies and tools I use to bring ideas to life</p>
           </div>
 
-          {Object.keys(skillsByCategory).length === 0 ? (
+          {skillCategoryCards.length === 0 ? (
             <p className="text-white/40">No skills added yet.</p>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Object.entries(skillsByCategory).map(([category, categorySkills], index) => (
+            <div className="grid md:grid-cols-2 gap-6">
+              {skillCategoryCards.map(({ category, skills }) => (
                 <div
                   key={category}
-                  className="bg-white/5 border border-white/10 rounded-3xl p-8 hover:bg-white/10 transition-colors duration-500 overflow-hidden relative group"
+                  className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/[0.08] transition-colors"
                 >
-                  <div className="absolute right-0 top-0 w-32 h-32 bg-[#A855F7]/10 rounded-full blur-[50px] -translate-y-1/2 translate-x-1/2 group-hover:bg-[#A855F7]/20 transition-colors"></div>
-                  <h3 className="text-xl font-bold text-white/90 mb-6 tracking-wide">
+                  <h3 className="text-xl font-semibold text-white mb-4 tracking-wide">
                     {category}
                   </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {categorySkills.map((skill) => (
-                      <span
-                        key={skill.id}
-                        className="px-4 py-2 bg-[#000428]/50 border border-white/5 rounded-full text-white/70 text-sm font-medium"
-                      >
-                        {skill.name}
-                      </span>
+                  <div className="space-y-4">
+                    {skills.map((skill) => (
+                      <div key={skill.id}>
+                        <div className="flex items-center justify-between text-sm mb-1">
+                          <span className="text-white/80">{skill.name}</span>
+                          <span className="text-[#38BDF8] font-semibold">{skill.score}%</span>
+                        </div>
+                        <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-gradient-to-r from-[#A855F7] to-[#22D3EE]"
+                            style={{ width: `${skill.score}%` }}
+                          />
+                        </div>
+                      </div>
                     ))}
+                    {skills.length === 0 && (
+                      <span className="text-sm text-white/40">
+                        No skills in this category yet.
+                      </span>
+                    )}
                   </div>
                 </div>
               ))}
@@ -532,9 +607,9 @@ export default function HomePage() {
       <section id="achievements" className={`py-32 relative z-10 w-full transition-all duration-1000 transform ${visibleSections['achievements'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
           <div className="max-w-4xl mx-auto px-6">
             <div className="mb-16">
-               <div className="text-sm tracking-[0.3em] font-medium text-[#3B82F6] uppercase mb-4">— JOURNEY</div>
+               <div className="text-sm tracking-[0.3em] font-medium text-[#3B82F6] uppercase mb-4">— ACHIEVEMENTS</div>
                <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-white/50 text-transparent bg-clip-text">
-                 Professional Experience
+                 Achievements & Milestones
                </h2>
             </div>
 
@@ -552,6 +627,16 @@ export default function HomePage() {
                       achievement.project_url ||
                       getFirstUrlFromText(achievement.description)
                   );
+                  const cleanedDescription = stripFirstUrlFromText(achievement.description || "");
+                  const descriptionLines = cleanedDescription
+                    .split("\n")
+                    .map((line) => line.trim())
+                    .filter(Boolean);
+                  let awardText = "";
+                  if (descriptionLines.length > 0 && /^award\s*:/i.test(descriptionLines[0])) {
+                    awardText = descriptionLines.shift().replace(/^award\s*:/i, "").trim();
+                  }
+                  const achievementBody = descriptionLines.join(" ");
 
                   return (
                   <div
@@ -582,9 +667,14 @@ export default function HomePage() {
                           {achievement.date}
                         </span>
                       )}
+                      {awardText && (
+                        <span className="text-[10px] uppercase tracking-widest text-[#A855F7] font-semibold border border-[#A855F7]/30 bg-[#A855F7]/10 px-2 py-1 rounded-full">
+                          {awardText}
+                        </span>
+                      )}
                     </div>
                     <p className="text-white/50 leading-relaxed font-light text-lg">
-                      {achievement.description}
+                      {achievementBody}
                     </p>
                     {achievementLink && (
                       <p className="text-[#3B82F6] text-sm mt-3 uppercase tracking-widest">
@@ -601,11 +691,11 @@ export default function HomePage() {
       {/* 6. Certificates Section */}
       <section id="certificates" className={`py-32 relative z-10 w-full transition-all duration-1000 transform ${visibleSections['certificates'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
         <div className="max-w-6xl mx-auto px-6">
-          <div className="mb-16">
-            <div className="text-sm tracking-[0.3em] font-medium text-[#A855F7] uppercase mb-4">— CERTIFICATES</div>
-            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-white/50 text-transparent bg-clip-text">
-              Certifications & Credentials
+          <div className="mb-12 text-center">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
+              Certificates
             </h2>
+            <p className="text-white/50">My e-certificates and verified certificates added from the admin panel</p>
           </div>
 
           {certificateItems.length === 0 ? (
@@ -632,49 +722,118 @@ export default function HomePage() {
 
       {/* 7. Contact Section */}
       <section id="contact" className={`py-32 relative z-10 w-full overflow-hidden transition-all duration-1000 transform ${visibleSections['contact'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <div className="text-sm tracking-[0.3em] font-medium text-[#A855F7] uppercase mb-6">— CONTACT</div>
-          <h2 className="text-5xl md:text-7xl font-black mb-8 leading-tight">
-            <span className="text-white">Let's build something </span>
-            <span className="bg-gradient-to-r from-[#3B82F6] to-[#A855F7] text-transparent bg-clip-text">
-              amazing.
-            </span>
-          </h2>
-          <p className="text-xl text-white/50 mb-16 max-w-2xl mx-auto font-light leading-relaxed">
-             Drop me an email or message to discuss your project requirements or just to say hello.
-          </p>
-
-          <div className="grid sm:grid-cols-2 gap-6 mb-16 max-w-2xl mx-auto">
-            <a
-              href={`mailto:${contactEmail}`}
-              className="flex items-center gap-6 p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all group text-left"
-            >
-              <div className="w-14 h-14 rounded-full bg-[#A855F7]/20 flex items-center justify-center flex-shrink-0 group-hover:bg-[#A855F7]/30 transition-colors">
-                <Mail size={24} className="text-[#A855F7]" />
-              </div>
-              <div>
-                 <div className="text-xs uppercase tracking-widest text-white/40 mb-1">Email Me</div>
-                 <div className="font-semibold text-white/90">{contactEmail}</div>
-              </div>
-            </a>
-            
-            <a
-              href={whatsappHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-6 p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-[#10B981]/30 hover:bg-[#10B981]/5 transition-all group text-left"
-            >
-              <div className="w-14 h-14 rounded-full bg-[#10B981]/20 flex items-center justify-center flex-shrink-0 group-hover:bg-[#10B981]/30 transition-colors">
-                <MessageCircle size={24} className="text-[#10B981]" />
-              </div>
-              <div>
-                 <div className="text-xs uppercase tracking-widest text-[#10B981]/60 mb-1">WhatsApp</div>
-                 <div className="font-semibold text-white/90">{whatsappNumber}</div>
-              </div>
-            </a>
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-14">
+            <div className="text-sm tracking-[0.3em] font-medium text-[#A855F7] uppercase mb-4">— CONTACT</div>
+            <h2 className="text-5xl md:text-6xl font-black mb-4 leading-tight">Let's Work Together</h2>
+            <p className="text-white/50 text-lg">Have a project in mind? I'd love to hear from you</p>
           </div>
 
-          <p className="text-white/50 mb-6">{contactLocation}</p>
+          <div className="grid lg:grid-cols-2 gap-10 items-start">
+            <div>
+              <h3 className="text-3xl font-bold mb-6">Get in touch</h3>
+              <p className="text-white/50 mb-8 max-w-md">
+                I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
+              </p>
+
+              <div className="space-y-4 mb-8">
+                <a href={`mailto:${contactEmail}`} className="flex items-center gap-4 text-left group">
+                  <span className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-white/30 transition-colors">
+                    <Mail size={16} className="text-[#A855F7]" />
+                  </span>
+                  <span className="text-white/80">{contactEmail}</span>
+                </a>
+                <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 text-left group">
+                  <span className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-white/30 transition-colors">
+                    <Phone size={16} className="text-[#3B82F6]" />
+                  </span>
+                  <span className="text-white/80">{contactPhone}</span>
+                </a>
+                <div className="flex items-center gap-4 text-left">
+                  <span className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
+                    <MapPin size={16} className="text-[#10B981]" />
+                  </span>
+                  <span className="text-white/80">{contactLocation}</span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {socialPills.map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 text-sm rounded-md bg-white/5 border border-white/10 text-white/70 hover:text-white hover:border-white/30 transition-colors"
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            <form
+              onSubmit={handleContactSubmit}
+              className="rounded-2xl p-6 bg-white/5 border border-white/10 backdrop-blur-md"
+            >
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm text-white/70 mb-2">Your Name</label>
+                  <input
+                    type="text"
+                    value={contactForm.name}
+                    onChange={(event) =>
+                      setContactForm((prev) => ({ ...prev, name: event.target.value }))
+                    }
+                    className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:border-white/30"
+                    placeholder="John Doe"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm text-white/70 mb-2">Email Address</label>
+                  <input
+                    type="email"
+                    value={contactForm.email}
+                    onChange={(event) =>
+                      setContactForm((prev) => ({ ...prev, email: event.target.value }))
+                    }
+                    className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:border-white/30"
+                    placeholder="john@example.com"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm text-white/70 mb-2">Message</label>
+                  <textarea
+                    rows={5}
+                    value={contactForm.message}
+                    onChange={(event) =>
+                      setContactForm((prev) => ({ ...prev, message: event.target.value }))
+                    }
+                    className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:border-white/30"
+                    placeholder="Tell me about your project..."
+                    required
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={contactSending}
+                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-[#A855F7] to-[#06B6D4] text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
+                >
+                  {contactSending ? "Sending..." : "Send Message"}
+                  <ArrowRight size={16} />
+                </button>
+
+                {contactFeedback && (
+                  <p className="text-sm text-white/80">{contactFeedback}</p>
+                )}
+              </div>
+            </form>
+          </div>
         </div>
       </section>
 

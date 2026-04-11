@@ -8,12 +8,14 @@ import {
   Code,
   Lock,
   LogOut,
+  Mail,
   RefreshCw,
 } from "lucide-react";
 import SkillsManager from "@/components/admin/SkillsManager";
 import ProjectsManager from "@/components/admin/ProjectsManager";
 import AchievementsManager from "@/components/admin/AchievementsManager";
 import CertificatesManager from "@/components/admin/CertificatesManager";
+import MessagesManager from "@/components/admin/MessagesManager";
 import ProfileManager from "@/components/admin/ProfileManager";
 
 const ADMIN_USERNAME = "Shafir/admin";
@@ -35,21 +37,24 @@ export default function AdminPage() {
     projects: 0,
     achievements: 0,
     certificates: 0,
+    messages: 0,
   });
 
   const loadDashboardStats = useCallback(async () => {
     setStatsLoading(true);
     try {
-      const [skillsRes, projectsRes, achievementsRes] = await Promise.all([
+      const [skillsRes, projectsRes, achievementsRes, messagesRes] = await Promise.all([
         fetch("/api/portfolio/skills", { cache: "no-store" }),
         fetch("/api/portfolio/projects", { cache: "no-store" }),
         fetch("/api/portfolio/achievements", { cache: "no-store" }),
+        fetch("/api/portfolio/messages", { cache: "no-store" }),
       ]);
 
-      const [skillsData, projectsData, achievementsData] = await Promise.all([
+      const [skillsData, projectsData, achievementsData, messagesData] = await Promise.all([
         skillsRes.json(),
         projectsRes.json(),
         achievementsRes.json(),
+        messagesRes.json(),
       ]);
 
       const allAchievements = Array.isArray(achievementsData)
@@ -65,6 +70,7 @@ export default function AdminPage() {
         projects: Array.isArray(projectsData) ? projectsData.length : 0,
         achievements: achievements.length,
         certificates: certificates.length,
+        messages: Array.isArray(messagesData) ? messagesData.length : 0,
       });
     } catch (error) {
       console.error("Error loading admin stats:", error);
@@ -215,7 +221,7 @@ export default function AdminPage() {
           </div>
         </header>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
           <div className="rounded-xl border border-cyan-500/20 bg-[#0b1b35] p-4">
             <div className="flex items-center justify-between">
               <span className="text-slate-300 text-sm">Skills</span>
@@ -244,6 +250,13 @@ export default function AdminPage() {
             </div>
             <p className="text-3xl font-black mt-2">{stats.certificates}</p>
           </div>
+          <div className="rounded-xl border border-cyan-500/20 bg-[#0b1b35] p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-slate-300 text-sm">Messages</span>
+              <Mail size={16} className="text-cyan-300" />
+            </div>
+            <p className="text-3xl font-black mt-2">{stats.messages}</p>
+          </div>
         </div>
 
         <div className="space-y-6">
@@ -252,6 +265,7 @@ export default function AdminPage() {
           <ProjectsManager onDataChange={loadDashboardStats} />
           <AchievementsManager onDataChange={loadDashboardStats} />
           <CertificatesManager onDataChange={loadDashboardStats} />
+          <MessagesManager onDataChange={loadDashboardStats} />
         </div>
       </div>
     </div>
