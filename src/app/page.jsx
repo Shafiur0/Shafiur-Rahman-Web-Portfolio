@@ -14,7 +14,8 @@ import {
   Calendar,
   ChevronDown,
   Code,
-  ArrowRight
+  ArrowRight,
+  X
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -86,6 +87,7 @@ export default function HomePage() {
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
   const [contactSending, setContactSending] = useState(false);
   const [contactFeedback, setContactFeedback] = useState("");
+  const [zoomImage, setZoomImage] = useState(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -141,6 +143,19 @@ export default function HomePage() {
     };
     fetchAll();
   }, []);
+
+  useEffect(() => {
+    if (!zoomImage) return undefined;
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setZoomImage(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [zoomImage]);
 
   const photoUrl =
     profile.photo_url ||
@@ -261,6 +276,11 @@ export default function HomePage() {
     })
     .filter((certificate) => Boolean(certificate.href));
 
+  const openImageZoom = (src, alt) => {
+    if (!src) return;
+    setZoomImage({ src, alt });
+  };
+
   const handleContactSubmit = async (event) => {
     event.preventDefault();
     setContactFeedback("");
@@ -368,13 +388,18 @@ export default function HomePage() {
             {headline} - {bio}
           </p>
 
-          <div className="w-28 h-28 mx-auto rounded-2xl overflow-hidden border border-white/20 bg-white/5 mb-8">
+          <button
+            type="button"
+            onClick={() => openImageZoom(photoUrl, `${fullName} profile photo`)}
+            className="w-28 h-28 mx-auto rounded-2xl overflow-hidden border border-white/20 bg-white/5 mb-8 cursor-zoom-in"
+            aria-label="Open profile photo"
+          >
             <img
               src={photoUrl}
               alt="Shafiur Rahman"
               className="w-full h-full object-cover"
             />
-          </div>
+          </button>
 
           <div className="flex flex-wrap justify-center items-center gap-3 md:gap-4">
             <a
@@ -628,11 +653,18 @@ export default function HomePage() {
 
             {achievementSlidePhoto && (
               <div className="mb-12 rounded-2xl overflow-hidden border border-white/15 bg-white/5">
-                <img
-                  src={achievementSlidePhoto}
-                  alt="Achievement slide"
-                  className="w-full h-52 md:h-72 object-cover"
-                />
+                <button
+                  type="button"
+                  onClick={() => openImageZoom(achievementSlidePhoto, "Achievement slide")}
+                  className="w-full cursor-zoom-in"
+                  aria-label="Open achievement slide photo"
+                >
+                  <img
+                    src={achievementSlidePhoto}
+                    alt="Achievement slide"
+                    className="w-full h-52 md:h-72 object-cover"
+                  />
+                </button>
               </div>
             )}
 
@@ -859,6 +891,29 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {zoomImage && (
+        <div
+          className="fixed inset-0 z-[70] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setZoomImage(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setZoomImage(null)}
+            className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-colors flex items-center justify-center"
+            aria-label="Close image preview"
+          >
+            <X size={18} />
+          </button>
+
+          <img
+            src={zoomImage.src}
+            alt={zoomImage.alt}
+            className="max-w-full max-h-[88vh] object-contain rounded-xl border border-white/20 shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          />
+        </div>
+      )}
 
       {/* Floating WhatsApp Action Button */}
       <a
