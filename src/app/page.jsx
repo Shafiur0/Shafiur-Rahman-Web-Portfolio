@@ -18,7 +18,7 @@ import {
 const NAV_ITEMS = [
   { label: "Home", href: "#home" },
   { label: "Projects", href: "#portfolio" },
-  { label: "Achievements", href: "#experience" },
+  { label: "Achievements", href: "#achievements" },
   { label: "Skills", href: "#services" },
   { label: "Certificates", href: "#certificates" },
   { label: "Contact", href: "#contact" },
@@ -71,7 +71,7 @@ export default function HomePage() {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
       
-      const sections = ['home', 'portfolio', 'experience', 'services', 'certificates', 'contact', 'about'];
+      const sections = ['home', 'portfolio', 'achievements', 'services', 'certificates', 'contact', 'about'];
       const newVisible = {};
       sections.forEach(id => {
         const el = document.getElementById(id);
@@ -529,8 +529,7 @@ export default function HomePage() {
       </section>
 
       {/* 5. Professional Journey / Experience */}
-      {timelineAchievements.length > 0 && (
-        <section id="experience" className={`py-32 relative z-10 w-full transition-all duration-1000 transform ${visibleSections['experience'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+      <section id="achievements" className={`py-32 relative z-10 w-full transition-all duration-1000 transform ${visibleSections['achievements'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
           <div className="max-w-4xl mx-auto px-6">
             <div className="mb-16">
                <div className="text-sm tracking-[0.3em] font-medium text-[#3B82F6] uppercase mb-4">— JOURNEY</div>
@@ -539,60 +538,65 @@ export default function HomePage() {
                </h2>
             </div>
 
-            <div className="relative border-l-2 border-[#3B82F6]/30 ml-4 md:ml-6 space-y-16">
-              {timelineAchievements.map((achievement) => {
-                const achievementLink = toExternalUrl(
-                  achievement.link_url ||
-                    achievement.url ||
-                    achievement.certificate_url ||
-                    achievement.project_url ||
-                    getFirstUrlFromText(achievement.description)
-                );
+            {timelineAchievements.length === 0 ? (
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
+                <p className="text-white/60">No achievements added yet. Add one from the Admin Panel.</p>
+              </div>
+            ) : (
+              <div className="relative border-l-2 border-[#3B82F6]/30 ml-4 md:ml-6 space-y-16">
+                {timelineAchievements.map((achievement) => {
+                  const achievementLink = toExternalUrl(
+                    achievement.link_url ||
+                      achievement.url ||
+                      achievement.certificate_url ||
+                      achievement.project_url ||
+                      getFirstUrlFromText(achievement.description)
+                  );
 
-                return (
-                <div
-                  key={achievement.id}
-                  className={`relative pl-10 md:pl-16 group ${achievementLink ? "cursor-pointer" : ""}`}
-                  onClick={() => {
-                    if (achievementLink) {
-                      window.open(achievementLink, "_blank", "noopener,noreferrer");
-                    }
-                  }}
-                  onKeyDown={(event) => {
-                    if (!achievementLink) return;
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      window.open(achievementLink, "_blank", "noopener,noreferrer");
-                    }
-                  }}
-                  role={achievementLink ? "link" : undefined}
-                  tabIndex={achievementLink ? 0 : undefined}
-                >
-                  {/* Timeline Dot */}
-                  <div className="absolute -left-[11px] top-1.5 w-5 h-5 rounded-full bg-[#000428] border-4 border-[#A855F7] group-hover:scale-125 transition-transform z-10"></div>
-                  
-                  <div className="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-6 mb-3">
-                    <h3 className="text-2xl font-bold text-white">{achievement.title}</h3>
-                    {achievement.date && (
-                      <span className="text-xs uppercase tracking-widest text-[#3B82F6] font-semibold">
-                        {achievement.date}
-                      </span>
+                  return (
+                  <div
+                    key={achievement.id}
+                    className={`relative pl-10 md:pl-16 group ${achievementLink ? "cursor-pointer" : ""}`}
+                    onClick={() => {
+                      if (achievementLink) {
+                        window.open(achievementLink, "_blank", "noopener,noreferrer");
+                      }
+                    }}
+                    onKeyDown={(event) => {
+                      if (!achievementLink) return;
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        window.open(achievementLink, "_blank", "noopener,noreferrer");
+                      }
+                    }}
+                    role={achievementLink ? "link" : undefined}
+                    tabIndex={achievementLink ? 0 : undefined}
+                  >
+                    {/* Timeline Dot */}
+                    <div className="absolute -left-[11px] top-1.5 w-5 h-5 rounded-full bg-[#000428] border-4 border-[#A855F7] group-hover:scale-125 transition-transform z-10"></div>
+
+                    <div className="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-6 mb-3">
+                      <h3 className="text-2xl font-bold text-white">{achievement.title}</h3>
+                      {achievement.date && (
+                        <span className="text-xs uppercase tracking-widest text-[#3B82F6] font-semibold">
+                          {achievement.date}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-white/50 leading-relaxed font-light text-lg">
+                      {achievement.description}
+                    </p>
+                    {achievementLink && (
+                      <p className="text-[#3B82F6] text-sm mt-3 uppercase tracking-widest">
+                        Open Link
+                      </p>
                     )}
                   </div>
-                  <p className="text-white/50 leading-relaxed font-light text-lg">
-                    {achievement.description}
-                  </p>
-                  {achievementLink && (
-                    <p className="text-[#3B82F6] text-sm mt-3 uppercase tracking-widest">
-                      Open Link
-                    </p>
-                  )}
-                </div>
-              )})}
-            </div>
+                )})}
+              </div>
+            )}
           </div>
-        </section>
-      )}
+      </section>
 
       {/* 6. Certificates Section */}
       <section id="certificates" className={`py-32 relative z-10 w-full transition-all duration-1000 transform ${visibleSections['certificates'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
