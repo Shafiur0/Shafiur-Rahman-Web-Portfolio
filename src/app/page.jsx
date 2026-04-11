@@ -33,11 +33,29 @@ function getFirstUrlFromText(text) {
   return match ? match[0] : "";
 }
 
+function stripFirstUrlFromText(text) {
+  if (typeof text !== "string") return "";
+  return text.replace(URL_REGEX, "").replace(/\n{2,}/g, "\n").trim();
+}
+
 function toExternalUrl(value) {
   if (!value || typeof value !== "string") return "";
   const trimmed = value.trim();
   if (!trimmed) return "";
   return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
+function isCertificateEntry(item) {
+  return /certificate|certification|credential/i.test(String(item?.icon || ""));
+}
+
+function toWhatsAppHref(value) {
+  if (!value || typeof value !== "string") return "https://wa.me/";
+  const digits = value.replace(/[^\d]/g, "");
+  if (!digits) return "https://wa.me/";
+  if (digits.startsWith("88")) return `https://wa.me/${digits}`;
+  if (digits.startsWith("0")) return `https://wa.me/88${digits}`;
+  return `https://wa.me/${digits}`;
 }
 
 export default function HomePage() {
@@ -107,9 +125,37 @@ export default function HomePage() {
   const photoUrl =
     profile.photo_url ||
     "https://ucarecdn.com/f7c7966c-96e4-46a8-80c8-96c835ab609c/-/format/auto/";
+  const fullName = profile.full_name || "Shafiur Rahman";
+  const headline = profile.headline || "Web Developer";
+  const contactEmail = profile.email || "shafiurrahman067@gmail.com";
+  const contactLocation = profile.location || "Dhaka, Bangladesh";
+  const whatsappNumber = profile.whatsapp || profile.phone || "+8801758958055";
+  const whatsappHref = toWhatsAppHref(whatsappNumber);
+  const cvUrl = toExternalUrl(profile.cv_url);
   const bio =
     profile.bio ||
     "Creating modern, production-ready applications that solve real-world problems through exceptional full-stack development.";
+
+  const socialLinks = [
+    { href: toExternalUrl(profile.github_url) || "https://github.com/Shafiur0", icon: Github },
+    {
+      href:
+        toExternalUrl(profile.linkedin_url) ||
+        "https://www.linkedin.com/in/shafiur-rahman-871683347/",
+      icon: Linkedin,
+    },
+    { href: toExternalUrl(profile.facebook_url) || "https://www.facebook.com/share/1CWr8Wod8K/", icon: Facebook },
+    {
+      href:
+        toExternalUrl(profile.instagram_url) ||
+        "https://www.instagram.com/shafiurshafim?igsh=MTUyaDdoYnNuODhpeg==",
+      icon: Instagram,
+    },
+    {
+      href: toExternalUrl(profile.x_url) || "https://x.com/Shafiur792",
+      icon: MessageCircle,
+    },
+  ].filter((item) => Boolean(item.href));
 
   const skillsByCategory = skills.reduce((acc, skill) => {
     if (!acc[skill.category]) acc[skill.category] = [];
@@ -117,7 +163,23 @@ export default function HomePage() {
     return acc;
   }, {});
 
-  const certificateItems = achievements
+  const timelineAchievements = achievements.filter(
+    (achievement) => !isCertificateEntry(achievement),
+  );
+
+  const explicitCertificates = achievements.filter(isCertificateEntry);
+  const fallbackCertificates = achievements.filter(
+    (achievement) =>
+      !isCertificateEntry(achievement) &&
+      /certificate|certification|credential/i.test(
+        `${achievement.title || ""} ${achievement.description || ""}`,
+      ),
+  );
+
+  const certificateItems = (explicitCertificates.length
+    ? explicitCertificates
+    : fallbackCertificates
+  )
     .map((achievement) => {
       const href = toExternalUrl(
         achievement.certificate_url ||
@@ -130,8 +192,8 @@ export default function HomePage() {
       return {
         id: achievement.id,
         title: achievement.title,
-        issuer: achievement.date || "Certificate",
-        description: achievement.description || "",
+        issuer: achievement.date || "Certificate Issuer",
+        description: stripFirstUrlFromText(achievement.description || ""),
         href,
       };
     })
@@ -181,7 +243,7 @@ export default function HomePage() {
               href="/admin"
               className="px-6 py-2.5 bg-white text-[#000428] text-sm rounded-full font-bold hover:scale-105 active:scale-95 transition-all"
             >
-              ADMIN PANEL
+              ADMIN
             </a>
           </div>
         </div>
@@ -205,15 +267,15 @@ export default function HomePage() {
             </div>
 
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 tracking-tight leading-tight">
-              <span className="text-white/90">MD. </span>
+              <span className="text-white/90">Hi, I'm </span>
               <br />
               <span className="bg-gradient-to-r from-[#3B82F6] to-[#A855F7] text-transparent bg-clip-text">
-                SHAFIUR.
+                {fullName}
               </span>
             </h1>
 
             <p className="text-lg md:text-xl text-white/60 max-w-lg mb-10 leading-relaxed font-light">
-              {bio}
+              {headline} - {bio}
             </p>
 
             <div className="flex flex-wrap items-center gap-5">
@@ -224,11 +286,27 @@ export default function HomePage() {
                 View Selected Works
                 <ArrowRight size={18} />
               </a>
+              {cvUrl && (
+                <>
+                  <a
+                    href={cvUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-4 bg-white/10 border border-white/20 rounded-full font-semibold hover:bg-white/20 transition-colors"
+                  >
+                    View CV
+                  </a>
+                  <a
+                    href={cvUrl}
+                    download
+                    className="inline-flex items-center gap-2 px-6 py-4 bg-white/10 border border-white/20 rounded-full font-semibold hover:bg-white/20 transition-colors"
+                  >
+                    Download CV
+                  </a>
+                </>
+              )}
               <div className="flex items-center gap-4 ml-4">
-                {[
-                  { href: "https://github.com/Shafiur0", icon: Github },
-                  { href: "https://www.linkedin.com/in/shafiur-rahman-871683347/", icon: Linkedin },
-                ].map(({ href, icon: Icon }) => (
+                {socialLinks.slice(0, 2).map(({ href, icon: Icon }) => (
                   <a
                     key={href}
                     href={href}
@@ -451,7 +529,7 @@ export default function HomePage() {
       </section>
 
       {/* 5. Professional Journey / Experience */}
-      {achievements.length > 0 && (
+      {timelineAchievements.length > 0 && (
         <section id="experience" className={`py-32 relative z-10 w-full transition-all duration-1000 transform ${visibleSections['experience'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
           <div className="max-w-4xl mx-auto px-6">
             <div className="mb-16">
@@ -462,7 +540,7 @@ export default function HomePage() {
             </div>
 
             <div className="relative border-l-2 border-[#3B82F6]/30 ml-4 md:ml-6 space-y-16">
-              {achievements.map((achievement) => {
+              {timelineAchievements.map((achievement) => {
                 const achievementLink = toExternalUrl(
                   achievement.link_url ||
                     achievement.url ||
@@ -564,7 +642,7 @@ export default function HomePage() {
 
           <div className="grid sm:grid-cols-2 gap-6 mb-16 max-w-2xl mx-auto">
             <a
-              href="mailto:shafiurrahman067@gmail.com"
+              href={`mailto:${contactEmail}`}
               className="flex items-center gap-6 p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all group text-left"
             >
               <div className="w-14 h-14 rounded-full bg-[#A855F7]/20 flex items-center justify-center flex-shrink-0 group-hover:bg-[#A855F7]/30 transition-colors">
@@ -572,12 +650,12 @@ export default function HomePage() {
               </div>
               <div>
                  <div className="text-xs uppercase tracking-widest text-white/40 mb-1">Email Me</div>
-                 <div className="font-semibold text-white/90">shafiurrahman067@...</div>
+                 <div className="font-semibold text-white/90">{contactEmail}</div>
               </div>
             </a>
             
             <a
-              href="https://wa.me/8801758958055"
+              href={whatsappHref}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-6 p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-[#10B981]/30 hover:bg-[#10B981]/5 transition-all group text-left"
@@ -587,16 +665,18 @@ export default function HomePage() {
               </div>
               <div>
                  <div className="text-xs uppercase tracking-widest text-[#10B981]/60 mb-1">WhatsApp</div>
-                 <div className="font-semibold text-white/90">+880 1758958055</div>
+                 <div className="font-semibold text-white/90">{whatsappNumber}</div>
               </div>
             </a>
           </div>
+
+          <p className="text-white/50 mb-6">{contactLocation}</p>
         </div>
       </section>
 
       {/* Floating WhatsApp Action Button */}
       <a
-        href="https://wa.me/8801758958055"
+        href={whatsappHref}
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-8 right-8 z-50 w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-[0_4px_30px_rgba(37,211,102,0.4)] group overflow-hidden hover:scale-110 active:scale-95 transition-transform"
@@ -611,12 +691,7 @@ export default function HomePage() {
             © {new Date().getFullYear()} Shafiur Rahman. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-              {[
-                { href: "https://github.com/Shafiur0", icon: Github },
-                { href: "https://www.linkedin.com/in/shafiur-rahman-871683347/", icon: Linkedin },
-                { href: "https://www.facebook.com/share/1CWr8Wod8K/", icon: Facebook },
-                { href: "https://www.instagram.com/shafiurshafim?igsh=MTUyaDdoYnNuODhpeg==", icon: Instagram },
-              ].map(({ href, icon: Icon }) => (
+              {socialLinks.map(({ href, icon: Icon }) => (
                 <a
                   key={href}
                   href={href}

@@ -1,23 +1,26 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Trash2, Save, X, Upload } from "lucide-react";
+import { Link2, Pencil, Plus, Trash2, Upload, X } from "lucide-react";
 import useUpload from "@/utils/useUpload";
 
-export default function ProjectsManager() {
+const initialFormData = {
+  title: "",
+  description: "",
+  image_url: "",
+  project_url: "",
+  github_url: "",
+  technologies: "",
+  featured: false,
+  display_order: 0,
+};
+
+export default function ProjectsManager({ onDataChange }) {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    image_url: "",
-    project_url: "",
-    github_url: "",
-    technologies: "",
-    featured: false,
-    display_order: 0,
-  });
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+  const [formData, setFormData] = useState(initialFormData);
   const [editingId, setEditingId] = useState(null);
   const [upload, { loading: uploading }] = useUpload();
 
@@ -29,9 +32,12 @@ export default function ProjectsManager() {
     try {
       const res = await fetch("/api/portfolio/projects", { cache: "no-store" });
       const data = await res.json();
-      setProjects(data);
+      const list = Array.isArray(data) ? data : [];
+      setProjects(list);
+      onDataChange?.(list);
     } catch (error) {
       console.error("Error fetching projects:", error);
+      setMessage("Failed to load projects");
     } finally {
       setLoading(false);
     }
@@ -41,23 +47,21 @@ export default function ProjectsManager() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64 = reader.result;
-      const { url, error } = await upload({ base64 });
+    const { url, error } = await upload({ file });
 
-      if (error) {
-        alert("Failed to upload image");
-        return;
-      }
+    if (error) {
+      setMessage("Failed to upload image");
+      return;
+    }
 
-      setFormData({ ...formData, image_url: url });
-    };
-    reader.readAsDataURL(file);
+    setFormData((prev) => ({ ...prev, image_url: url }));
+    setMessage("Image uploaded");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSaving(true);
+    setMessage("");
 
     const techArray = formData.technologies
       ? formData.technologies
@@ -73,34 +77,30 @@ export default function ProjectsManager() {
 
     try {
       if (editingId) {
-        await fetch("/api/portfolio/projects", {
+        const response = await fetch("/api/portfolio/projects", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...payload, id: editingId }),
         });
+        if (!response.ok) throw new Error("Failed to update project");
       } else {
-        await fetch("/api/portfolio/projects", {
+        const response = await fetch("/api/portfolio/projects", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
+        if (!response.ok) throw new Error("Failed to create project");
       }
 
-      setFormData({
-        title: "",
-        description: "",
-        image_url: "",
-        project_url: "",
-        github_url: "",
-        technologies: "",
-        featured: false,
-        display_order: 0,
-      });
-      setShowForm(false);
+      setFormData(initialFormData);
       setEditingId(null);
-      fetchProjects();
+      setMessage(editingId ? "Project updated" : "Project added");
+      await fetchProjects();
     } catch (error) {
       console.error("Error saving project:", error);
+      setMessage("Failed to save project");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -116,278 +116,236 @@ export default function ProjectsManager() {
       display_order: project.display_order,
     });
     setEditingId(project.id);
-    setShowForm(true);
+    setMessage("");
   };
 
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this project?")) return;
 
     try {
-      await fetch(`/api/portfolio/projects?id=${id}`, { method: "DELETE" });
-      fetchProjects();
+      const response = await fetch(`/api/portfolio/projects?id=${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error("Failed to delete project");
+
+      setMessage("Project removed");
+      await fetchProjects();
     } catch (error) {
       console.error("Error deleting project:", error);
+      setMessage("Failed to delete project");
     }
   };
 
   const handleCancel = () => {
-    setFormData({
-      title: "",
-      description: "",
-      image_url: "",
-      project_url: "",
-      github_url: "",
-      technologies: "",
-      featured: false,
-      display_order: 0,
-    });
-    setShowForm(false);
+    setFormData(initialFormData);
     setEditingId(null);
+    setMessage("");
   };
 
-  if (loading) {
-    return <div className="text-[#64748B]">Loading...</div>;
-  }
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium text-[#0F172A]">Manage Projects</h3>
-        {!showForm && (
-          <button
-            onClick={() => setShowForm(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#0F172A] text-[#FFFFFF] rounded-md text-sm font-medium hover:bg-[#1E293B] transition-colors"
-          >
-            <Plus size={16} />
-            Add Project
-          </button>
-        )}
+    <section className="rounded-2xl border border-cyan-500/20 bg-[#09152b] p-6 md:p-8">
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <h3 className="text-2xl font-bold text-white">Add Project</h3>
+        <span className="text-xs uppercase tracking-[0.24em] text-cyan-300/80">
+          {loading ? "Loading..." : `${projects.length} projects`}
+        </span>
       </div>
 
-      {showForm && (
-        <form
-          onSubmit={handleSubmit}
-          className="p-6 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0]"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="font-medium text-[#0F172A]">
-              {editingId ? "Edit Project" : "New Project"}
-            </h4>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid md:grid-cols-2 gap-4">
+          <input
+            type="text"
+            value={formData.title}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            className="w-full rounded-lg bg-[#12213e] border border-cyan-500/20 px-4 py-2.5 text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-cyan-400"
+            placeholder="Title"
+            required
+          />
+          <input
+            type="url"
+            value={formData.project_url}
+            onChange={(e) =>
+              setFormData({ ...formData, project_url: e.target.value })
+            }
+            className="w-full rounded-lg bg-[#12213e] border border-cyan-500/20 px-4 py-2.5 text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-cyan-400"
+            placeholder="Project link"
+          />
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          <input
+            type="url"
+            value={formData.image_url}
+            onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+            className="w-full rounded-lg bg-[#12213e] border border-cyan-500/20 px-4 py-2.5 text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-cyan-400"
+            placeholder="Image URL (optional)"
+          />
+          <input
+            type="text"
+            value={formData.technologies}
+            onChange={(e) =>
+              setFormData({ ...formData, technologies: e.target.value })
+            }
+            className="w-full rounded-lg bg-[#12213e] border border-cyan-500/20 px-4 py-2.5 text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-cyan-400"
+            placeholder="Tags, comma separated"
+          />
+        </div>
+
+        <textarea
+          value={formData.description}
+          onChange={(e) =>
+            setFormData({ ...formData, description: e.target.value })
+          }
+          rows={3}
+          className="w-full rounded-lg bg-[#12213e] border border-cyan-500/20 px-4 py-2.5 text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-cyan-400"
+          placeholder="Description"
+        />
+
+        <div className="grid md:grid-cols-3 gap-4">
+          <input
+            type="url"
+            value={formData.github_url}
+            onChange={(e) => setFormData({ ...formData, github_url: e.target.value })}
+            className="w-full rounded-lg bg-[#12213e] border border-cyan-500/20 px-4 py-2.5 text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-cyan-400"
+            placeholder="GitHub link"
+          />
+          <input
+            type="number"
+            value={formData.display_order}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                display_order: Number(e.target.value) || 0,
+              })
+            }
+            className="w-full rounded-lg bg-[#12213e] border border-cyan-500/20 px-4 py-2.5 text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-cyan-400"
+            placeholder="Display order"
+          />
+          <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#12213e] border border-cyan-500/20 text-slate-200">
+            <input
+              type="checkbox"
+              checked={formData.featured}
+              onChange={(e) =>
+                setFormData({ ...formData, featured: e.target.checked })
+              }
+              className="accent-cyan-400"
+            />
+            Featured
+          </label>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-500/20 border border-cyan-400/40 text-cyan-100 cursor-pointer hover:bg-cyan-500/30 transition-colors">
+            <Upload size={16} />
+            {uploading ? "Uploading..." : "Upload Image"}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+              disabled={uploading}
+            />
+          </label>
+
+          {formData.image_url && (
+            <img
+              src={formData.image_url}
+              alt="Preview"
+              className="w-16 h-12 object-cover rounded border border-cyan-500/20"
+            />
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="submit"
+            disabled={saving}
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-cyan-500 text-[#05202f] font-semibold hover:bg-cyan-400 transition-colors disabled:opacity-70"
+          >
+            <Plus size={16} />
+            {saving ? "Saving..." : editingId ? "Update Project" : "Add Project"}
+          </button>
+
+          {editingId && (
             <button
               type="button"
               onClick={handleCancel}
-              className="text-[#64748B] hover:text-[#0F172A]"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-transparent border border-slate-500 text-slate-200 hover:bg-slate-800 transition-colors"
             >
-              <X size={20} />
+              <X size={16} />
+              Cancel edit
             </button>
-          </div>
+          )}
 
-          <div className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-[#0F172A] mb-2">
-                  Title
-                </label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
-                  className="w-full px-3 py-2 bg-[#FFFFFF] border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#0F172A]"
-                  placeholder="Project name"
-                  required
-                />
-              </div>
+          {message && <p className="text-sm text-cyan-200">{message}</p>}
+        </div>
+      </form>
 
-              <div>
-                <label className="block text-sm font-medium text-[#0F172A] mb-2">
-                  Display Order
-                </label>
-                <input
-                  type="number"
-                  value={formData.display_order}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      display_order: parseInt(e.target.value),
-                    })
-                  }
-                  className="w-full px-3 py-2 bg-[#FFFFFF] border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#0F172A]"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-[#0F172A] mb-2">
-                Description
-              </label>
-              <textarea
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                rows={3}
-                className="w-full px-3 py-2 bg-[#FFFFFF] border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#0F172A]"
-                placeholder="Brief description of the project"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-[#0F172A] mb-2">
-                Project Image
-              </label>
-              <div className="flex items-center gap-4">
-                {formData.image_url && (
-                  <img
-                    src={formData.image_url}
-                    alt="Preview"
-                    className="w-32 h-20 object-cover rounded border border-[#E2E8F0]"
-                  />
-                )}
-                <label className="inline-flex items-center gap-2 px-4 py-2 bg-[#F8FAFC] text-[#0F172A] border border-[#E2E8F0] rounded-md cursor-pointer hover:bg-[#FFFFFF] text-sm">
-                  <Upload size={16} />
-                  {uploading ? "Uploading..." : "Upload Image"}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                    disabled={uploading}
-                  />
-                </label>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-[#0F172A] mb-2">
-                  Project URL
-                </label>
-                <input
-                  type="url"
-                  value={formData.project_url}
-                  onChange={(e) =>
-                    setFormData({ ...formData, project_url: e.target.value })
-                  }
-                  className="w-full px-3 py-2 bg-[#FFFFFF] border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#0F172A]"
-                  placeholder="https://example.com"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-[#0F172A] mb-2">
-                  GitHub URL
-                </label>
-                <input
-                  type="url"
-                  value={formData.github_url}
-                  onChange={(e) =>
-                    setFormData({ ...formData, github_url: e.target.value })
-                  }
-                  className="w-full px-3 py-2 bg-[#FFFFFF] border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#0F172A]"
-                  placeholder="https://github.com/username/repo"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-[#0F172A] mb-2">
-                Technologies (comma separated)
-              </label>
-              <input
-                type="text"
-                value={formData.technologies}
-                onChange={(e) =>
-                  setFormData({ ...formData, technologies: e.target.value })
-                }
-                className="w-full px-3 py-2 bg-[#FFFFFF] border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#0F172A]"
-                placeholder="React, Node.js, PostgreSQL"
-              />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="featured"
-                checked={formData.featured}
-                onChange={(e) =>
-                  setFormData({ ...formData, featured: e.target.checked })
-                }
-                className="w-4 h-4 text-[#0F172A] border-[#E2E8F0] rounded focus:ring-[#0F172A]"
-              />
-              <label htmlFor="featured" className="text-sm text-[#0F172A]">
-                Featured Project
-              </label>
-            </div>
-          </div>
-
-          <div className="flex gap-2 mt-6">
-            <button
-              type="submit"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#0F172A] text-[#FFFFFF] rounded-md text-sm font-medium hover:bg-[#1E293B]"
-            >
-              <Save size={16} />
-              {editingId ? "Update" : "Save"}
-            </button>
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="px-4 py-2 bg-[#FFFFFF] text-[#0F172A] border border-[#E2E8F0] rounded-md text-sm font-medium hover:bg-[#F8FAFC]"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      )}
-
-      <div className="space-y-4">
+      <div className="mt-6 space-y-2">
         {projects.length === 0 ? (
-          <p className="text-[#64748B] text-sm">
-            No projects yet. Add your first project above.
-          </p>
+          <p className="text-slate-400 text-sm">No projects yet.</p>
         ) : (
           projects.map((project) => (
             <div
               key={project.id}
-              className="flex gap-4 p-4 bg-[#FFFFFF] border border-[#E2E8F0] rounded-lg hover:border-[#0F172A] transition-colors"
+              className="flex flex-col md:flex-row gap-4 p-4 bg-[#0f1f3a] border border-cyan-500/10 rounded-lg"
             >
               {project.image_url && (
                 <img
                   src={project.image_url}
                   alt={project.title}
-                  className="w-32 h-24 object-cover rounded border border-[#E2E8F0] flex-shrink-0"
+                  className="w-32 h-24 object-cover rounded border border-cyan-500/20 flex-shrink-0"
                 />
               )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="font-medium text-[#0F172A]">
-                        {project.title}
-                      </h4>
+                      <h4 className="font-medium text-slate-100">{project.title}</h4>
                       {project.featured && (
-                        <span className="px-2 py-0.5 text-xs font-medium text-[#065F46] bg-[#D1FAE5] rounded-full">
+                        <span className="px-2 py-0.5 text-xs font-medium text-cyan-100 bg-cyan-500/20 rounded-full">
                           Featured
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-[#64748B] mt-1 line-clamp-2">
+                    <p className="text-sm text-slate-400 mt-1 line-clamp-2">
                       {project.description}
                     </p>
+                    <div className="flex flex-wrap items-center gap-3 mt-2 text-xs">
+                      {project.project_url && (
+                        <a
+                          href={project.project_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-cyan-200 hover:text-cyan-100"
+                        >
+                          <Link2 size={12} /> View Project
+                        </a>
+                      )}
+                      {project.github_url && (
+                        <a
+                          href={project.github_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-cyan-200 hover:text-cyan-100"
+                        >
+                          <Link2 size={12} /> GitHub
+                        </a>
+                      )}
+                    </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <button
                       onClick={() => handleEdit(project)}
-                      className="px-3 py-1 text-sm text-[#0F172A] hover:bg-[#F8FAFC] rounded-md transition-colors"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-cyan-200 hover:bg-cyan-500/10"
                     >
-                      Edit
+                      <Pencil size={14} /> Edit
                     </button>
                     <button
                       onClick={() => handleDelete(project.id)}
-                      className="p-2 text-[#991B1B] hover:bg-[#FEE2E2] rounded-md transition-colors"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-rose-300 hover:bg-rose-500/10"
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={14} /> Remove
                     </button>
                   </div>
                 </div>
@@ -396,7 +354,7 @@ export default function ProjectsManager() {
                     {project.technologies.map((tech, idx) => (
                       <span
                         key={idx}
-                        className="px-2 py-1 text-xs font-medium text-[#0F172A] bg-[#F1F5F9] rounded-full border border-[#E2E8F0]"
+                        className="px-2 py-1 text-xs font-medium text-cyan-100 bg-cyan-500/10 rounded-full border border-cyan-500/20"
                       >
                         {tech}
                       </span>
@@ -408,6 +366,6 @@ export default function ProjectsManager() {
           ))
         )}
       </div>
-    </div>
+    </section>
   );
 }
