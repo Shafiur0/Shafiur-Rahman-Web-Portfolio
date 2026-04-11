@@ -55,6 +55,27 @@ export default function ProfileManager({ onDataChange }) {
     setProfile((prev) => ({ ...prev, [field]: value }));
   };
 
+  const saveProfileEntry = async (key, value) => {
+    const response = await fetch("/api/portfolio/profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, value }),
+    });
+
+    if (!response.ok) {
+      let details = "";
+      try {
+        const data = await response.json();
+        details = data?.error || "";
+      } catch {
+        details = "";
+      }
+      throw new Error(details || `Failed to save ${key}`);
+    }
+
+    return response.json();
+  };
+
   const handleUpload = async (field, event) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -66,7 +87,15 @@ export default function ProfileManager({ onDataChange }) {
     }
 
     updateField(field, url);
-    setMessage("File uploaded. Click Save Now to persist changes.");
+
+    try {
+      await saveProfileEntry(field, url);
+      setMessage("File uploaded and saved successfully");
+      onDataChange?.({ ...profile, [field]: url });
+    } catch (saveError) {
+      console.error("Error saving uploaded file:", saveError);
+      setMessage("Upload succeeded, but saving failed. Try Save Now.");
+    }
   };
 
   const handleSave = async () => {
@@ -85,13 +114,7 @@ export default function ProfileManager({ onDataChange }) {
 
     try {
       await Promise.all(
-        entries.map(([key, value]) =>
-          fetch("/api/portfolio/profile", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ key, value }),
-          }),
-        ),
+        entries.map(([key, value]) => saveProfileEntry(key, value)),
       );
 
       setMessage("Profile saved successfully");
