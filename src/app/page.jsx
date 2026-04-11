@@ -9,14 +9,36 @@ import {
   Instagram,
   MessageCircle,
   Eye,
-  Download,
-  Briefcase,
   Calendar,
   ChevronDown,
   Code,
-  Trophy,
   ArrowRight
 } from "lucide-react";
+
+const NAV_ITEMS = [
+  { label: "Home", href: "#home" },
+  { label: "Projects", href: "#portfolio" },
+  { label: "Achievements", href: "#experience" },
+  { label: "Skills", href: "#services" },
+  { label: "Certificates", href: "#certificates" },
+  { label: "Contact", href: "#contact" },
+  { label: "About", href: "#about" },
+];
+
+const URL_REGEX = /(https?:\/\/[^\s)]+|www\.[^\s)]+)/i;
+
+function getFirstUrlFromText(text) {
+  if (typeof text !== "string") return "";
+  const match = text.match(URL_REGEX);
+  return match ? match[0] : "";
+}
+
+function toExternalUrl(value) {
+  if (!value || typeof value !== "string") return "";
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
 
 export default function HomePage() {
   const [skills, setSkills] = useState([]);
@@ -31,7 +53,7 @@ export default function HomePage() {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
       
-      const sections = ['home', 'about', 'services', 'portfolio', 'experience', 'contact'];
+      const sections = ['home', 'portfolio', 'experience', 'services', 'certificates', 'contact', 'about'];
       const newVisible = {};
       sections.forEach(id => {
         const el = document.getElementById(id);
@@ -95,6 +117,26 @@ export default function HomePage() {
     return acc;
   }, {});
 
+  const certificateItems = achievements
+    .map((achievement) => {
+      const href = toExternalUrl(
+        achievement.certificate_url ||
+          achievement.certificate_link ||
+          achievement.link_url ||
+          achievement.url ||
+          getFirstUrlFromText(achievement.description)
+      );
+
+      return {
+        id: achievement.id,
+        title: achievement.title,
+        issuer: achievement.date || "Certificate",
+        description: achievement.description || "",
+        href,
+      };
+    })
+    .filter((certificate) => Boolean(certificate.href));
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#000428] flex items-center justify-center">
@@ -125,13 +167,13 @@ export default function HomePage() {
             SHAFIUR.
           </div>
           <div className="hidden md:flex items-center gap-10">
-            {["Home", "About", "Services", "Portfolio", "Journey", "Contact"].map((item) => (
+            {NAV_ITEMS.map((item) => (
               <a
-                key={item}
-                href={`#${item.toLowerCase()}`}
+                key={item.label}
+                href={item.href}
                 className="text-[12px] tracking-[0.2em] text-white/50 font-medium transition-colors hover:text-white relative group uppercase"
               >
-                {item}
+                {item.label}
                 <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-[#3B82F6] to-[#A855F7] transition-all group-hover:w-full"></span>
               </a>
             ))}
@@ -139,7 +181,7 @@ export default function HomePage() {
               href="/admin"
               className="px-6 py-2.5 bg-white text-[#000428] text-sm rounded-full font-bold hover:scale-105 active:scale-95 transition-all"
             >
-              HIRE ME
+              ADMIN PANEL
             </a>
           </div>
         </div>
@@ -317,10 +359,31 @@ export default function HomePage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-              {projects.map((project) => (
+              {projects.map((project) => {
+                const projectLink = toExternalUrl(
+                  project.project_url ||
+                    project.github_url ||
+                    getFirstUrlFromText(project.description)
+                );
+
+                return (
                 <div
                   key={project.id}
-                  className="group relative rounded-3xl overflow-hidden border border-white/10 bg-white/5 hover:border-white/20 transition-all duration-500"
+                  className={`group relative rounded-3xl overflow-hidden border border-white/10 bg-white/5 hover:border-white/20 transition-all duration-500 ${projectLink ? "cursor-pointer" : ""}`}
+                  onClick={() => {
+                    if (projectLink) {
+                      window.open(projectLink, "_blank", "noopener,noreferrer");
+                    }
+                  }}
+                  onKeyDown={(event) => {
+                    if (!projectLink) return;
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      window.open(projectLink, "_blank", "noopener,noreferrer");
+                    }
+                  }}
+                  role={projectLink ? "link" : undefined}
+                  tabIndex={projectLink ? 0 : undefined}
                 >
                   <div className="aspect-[4/3] overflow-hidden relative">
                      <div className="absolute inset-0 bg-[#000428]/20 group-hover:bg-transparent transition-colors duration-500 z-10"></div>
@@ -344,6 +407,7 @@ export default function HomePage() {
                                href={project.project_url}
                                target="_blank"
                                rel="noopener noreferrer"
+                               onClick={(event) => event.stopPropagation()}
                                className="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center hover:scale-110 transition-transform"
                              >
                                 <Eye size={18} />
@@ -354,6 +418,7 @@ export default function HomePage() {
                                href={project.github_url}
                                target="_blank"
                                rel="noopener noreferrer"
+                               onClick={(event) => event.stopPropagation()}
                                className="w-12 h-12 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center border border-white/20 hover:bg-white/30 transition-colors"
                              >
                                <Github size={18} />
@@ -380,7 +445,7 @@ export default function HomePage() {
                     )}
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
         </div>
       </section>
@@ -397,10 +462,33 @@ export default function HomePage() {
             </div>
 
             <div className="relative border-l-2 border-[#3B82F6]/30 ml-4 md:ml-6 space-y-16">
-              {achievements.map((achievement, index) => (
+              {achievements.map((achievement) => {
+                const achievementLink = toExternalUrl(
+                  achievement.link_url ||
+                    achievement.url ||
+                    achievement.certificate_url ||
+                    achievement.project_url ||
+                    getFirstUrlFromText(achievement.description)
+                );
+
+                return (
                 <div
                   key={achievement.id}
-                  className="relative pl-10 md:pl-16 group"
+                  className={`relative pl-10 md:pl-16 group ${achievementLink ? "cursor-pointer" : ""}`}
+                  onClick={() => {
+                    if (achievementLink) {
+                      window.open(achievementLink, "_blank", "noopener,noreferrer");
+                    }
+                  }}
+                  onKeyDown={(event) => {
+                    if (!achievementLink) return;
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      window.open(achievementLink, "_blank", "noopener,noreferrer");
+                    }
+                  }}
+                  role={achievementLink ? "link" : undefined}
+                  tabIndex={achievementLink ? 0 : undefined}
                 >
                   {/* Timeline Dot */}
                   <div className="absolute -left-[11px] top-1.5 w-5 h-5 rounded-full bg-[#000428] border-4 border-[#A855F7] group-hover:scale-125 transition-transform z-10"></div>
@@ -416,14 +504,51 @@ export default function HomePage() {
                   <p className="text-white/50 leading-relaxed font-light text-lg">
                     {achievement.description}
                   </p>
+                  {achievementLink && (
+                    <p className="text-[#3B82F6] text-sm mt-3 uppercase tracking-widest">
+                      Open Link
+                    </p>
+                  )}
                 </div>
-              ))}
+              )})}
             </div>
           </div>
         </section>
       )}
 
-      {/* 6. Contact Section */}
+      {/* 6. Certificates Section */}
+      <section id="certificates" className={`py-32 relative z-10 w-full transition-all duration-1000 transform ${visibleSections['certificates'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="mb-16">
+            <div className="text-sm tracking-[0.3em] font-medium text-[#A855F7] uppercase mb-4">— CERTIFICATES</div>
+            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-white/50 text-transparent bg-clip-text">
+              Certifications & Credentials
+            </h2>
+          </div>
+
+          {certificateItems.length === 0 ? (
+            <p className="text-white/50">No certificate links added yet.</p>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {certificateItems.map((certificate) => (
+                <a
+                  key={certificate.id}
+                  href={certificate.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-[#A855F7]/50 hover:bg-white/10 transition-colors"
+                >
+                  <h3 className="text-xl font-bold text-white mb-2">{certificate.title}</h3>
+                  <p className="text-sm uppercase tracking-widest text-[#3B82F6] mb-3">{certificate.issuer}</p>
+                  <p className="text-white/60 text-sm line-clamp-3">{certificate.description || "Open credential"}</p>
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 7. Contact Section */}
       <section id="contact" className={`py-32 relative z-10 w-full overflow-hidden transition-all duration-1000 transform ${visibleSections['contact'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
         <div className="max-w-4xl mx-auto px-6 text-center">
           <div className="text-sm tracking-[0.3em] font-medium text-[#A855F7] uppercase mb-6">— CONTACT</div>
