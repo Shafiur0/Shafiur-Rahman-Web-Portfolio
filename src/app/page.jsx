@@ -964,23 +964,29 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="py-12 border-t border-white/10 relative z-10">
-        <div className="max-w-6xl mx-auto px-6 text-center flex flex-col md:flex-row items-center justify-between gap-6">
-          <p className="text-white/40 text-sm tracking-wide">
-            © {new Date().getFullYear()} Shafiur Rahman. All rights reserved.
-          </p>
-          <div className="flex items-center gap-6">
-              {socialLinks.map(({ href, icon: Icon }) => (
-                <a
-                  key={href}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white/40 hover:text-[#A855F7] transition-colors"
-                >
-                  <Icon size={20} />
-                </a>
-              ))}
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center flex flex-col md:flex-row items-center justify-between gap-6">
+            <p className="text-white/40 text-sm tracking-wide">
+              © {new Date().getFullYear()} Shafiur Rahman. All rights reserved.
+            </p>
+            <div className="flex items-center gap-6">
+                {socialLinks.map(({ href, icon: Icon }) => (
+                  <a
+                    key={href}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white/40 hover:text-[#A855F7] transition-colors"
+                  >
+                    <Icon size={20} />
+                  </a>
+                ))}
+            </div>
           </div>
+
+          <p className="mt-5 text-center text-white/50 text-sm tracking-wide">
+            Developed by Shafiur Rahman Shafim
+          </p>
         </div>
       </footer>
 
