@@ -161,7 +161,17 @@ export default function ProfileManager({ onDataChange }) {
 
   return (
     <section className="rounded-2xl border border-cyan-500/20 bg-[#09152b] p-6 md:p-8">
-      <h3 className="text-2xl font-bold text-white mb-6">Profile and Contact</h3>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <h3 className="text-2xl font-bold text-white">Profile and Contact</h3>
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-500 text-[#05202f] font-semibold hover:bg-cyan-400 transition-colors disabled:opacity-70"
+        >
+          <Save size={16} />
+          {saving ? "Saving..." : "Save Now"}
+        </button>
+      </div>
 
       <div className="grid md:grid-cols-2 gap-4 mb-4">
         <input
