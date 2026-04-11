@@ -23,6 +23,14 @@ const DEFAULT_PROFILE = {
   cv_url: "",
 };
 
+const toDataUrl = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Failed to read file"));
+    reader.readAsDataURL(file);
+  });
+
 export default function ProfileManager({ onDataChange }) {
   const [profile, setProfile] = useState(DEFAULT_PROFILE);
   const [loading, setLoading] = useState(true);
@@ -80,18 +88,34 @@ export default function ProfileManager({ onDataChange }) {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    let fileUrl = "";
+
     const { url, error } = await upload({ file });
     if (error) {
-      setMessage("Failed to upload file");
-      return;
+      const isImageField = field === "photo_url" || field === "achievement_photo_url";
+      if (!isImageField) {
+        setMessage("Failed to upload file");
+        return;
+      }
+
+      try {
+        // Fallback: store image as data URL when upload endpoint is unavailable in production.
+        fileUrl = await toDataUrl(file);
+      } catch (fallbackError) {
+        console.error("Fallback image conversion failed:", fallbackError);
+        setMessage("Failed to upload image");
+        return;
+      }
+    } else {
+      fileUrl = url;
     }
 
-    updateField(field, url);
+    updateField(field, fileUrl);
 
     try {
-      await saveProfileEntry(field, url);
+      await saveProfileEntry(field, fileUrl);
       setMessage("File uploaded and saved successfully");
-      onDataChange?.({ ...profile, [field]: url });
+      onDataChange?.({ ...profile, [field]: fileUrl });
     } catch (saveError) {
       console.error("Error saving uploaded file:", saveError);
       setMessage("Upload succeeded, but saving failed. Try Save Now.");

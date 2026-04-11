@@ -23,7 +23,6 @@ const initialFormData = {
   title: "",
   description: "",
   date: "",
-  icon: "award",
   link_url: "",
   display_order: 0,
 };
@@ -65,7 +64,7 @@ export default function AchievementsManager({ onDataChange }) {
     const payload = {
       title: formData.title.trim(),
       date: formData.date.trim(),
-      icon: formData.icon.trim() || "award",
+      icon: "award",
       display_order: Number(formData.display_order) || 0,
       description: [formData.description.trim(), formData.link_url.trim()]
         .filter(Boolean)
@@ -113,7 +112,6 @@ export default function AchievementsManager({ onDataChange }) {
       title: achievement.title,
       description: stripFirstUrl(achievement.description || ""),
       date: achievement.date || "",
-      icon: achievement.icon || "award",
       link_url: linkUrl,
       display_order: achievement.display_order,
     });
@@ -172,24 +170,15 @@ export default function AchievementsManager({ onDataChange }) {
           />
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4">
-          <input
-            type="text"
-            value={formData.icon}
-            onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-            className="w-full rounded-lg bg-[#12213e] border border-cyan-500/20 px-4 py-2.5 text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-cyan-400"
-            placeholder="award"
-          />
-          <input
-            type="url"
-            value={formData.link_url}
-            onChange={(e) =>
-              setFormData({ ...formData, link_url: e.target.value })
-            }
-            className="w-full rounded-lg bg-[#12213e] border border-cyan-500/20 px-4 py-2.5 text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-cyan-400"
-            placeholder="Achievement link"
-          />
-        </div>
+        <input
+          type="text"
+          value={formData.link_url}
+          onChange={(e) =>
+            setFormData({ ...formData, link_url: e.target.value })
+          }
+          className="w-full rounded-lg bg-[#12213e] border border-cyan-500/20 px-4 py-2.5 text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-cyan-400"
+          placeholder="Achievement link (optional)"
+        />
 
         <textarea
           value={formData.description}
