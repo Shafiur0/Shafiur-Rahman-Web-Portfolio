@@ -33,6 +33,7 @@ const toDataUrl = (file) =>
 
 export default function ProfileManager({ onDataChange }) {
   const [profile, setProfile] = useState(DEFAULT_PROFILE);
+  const [savedProfile, setSavedProfile] = useState(DEFAULT_PROFILE);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -46,11 +47,13 @@ export default function ProfileManager({ onDataChange }) {
     try {
       const res = await fetch("/api/portfolio/profile");
       const data = await res.json();
-      setProfile((prev) => ({
-        ...prev,
-        ...data,
-      }));
-      onDataChange?.(data || {});
+      const mergedProfile = {
+        ...DEFAULT_PROFILE,
+        ...(data || {}),
+      };
+      setProfile(mergedProfile);
+      setSavedProfile(mergedProfile);
+      onDataChange?.(mergedProfile);
     } catch (error) {
       console.error("Error fetching profile:", error);
       setMessage("Failed to load profile");
@@ -110,15 +113,55 @@ export default function ProfileManager({ onDataChange }) {
       fileUrl = url;
     }
 
-    updateField(field, fileUrl);
+    const nextProfile = {
+      ...profile,
+      [field]: fileUrl,
+    };
+    setProfile(nextProfile);
 
     try {
       await saveProfileEntry(field, fileUrl);
       setMessage("File uploaded and saved successfully");
-      onDataChange?.({ ...profile, [field]: fileUrl });
+      setSavedProfile((prev) => ({
+        ...prev,
+        [field]: fileUrl,
+      }));
+      onDataChange?.(nextProfile);
     } catch (saveError) {
       console.error("Error saving uploaded file:", saveError);
       setMessage("Upload succeeded, but saving failed. Try Save Now.");
+    }
+  };
+
+  const handleDownloadCv = async () => {
+    if (!profile.cv_url) return;
+
+    try {
+      if (/^(data|blob):/i.test(profile.cv_url)) {
+        const response = await fetch(profile.cv_url);
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = objectUrl;
+        link.download = "Shafiur_Rahman_CV.pdf";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(objectUrl);
+        return;
+      }
+
+      const link = document.createElement("a");
+      link.href = profile.cv_url;
+      link.download = "Shafiur_Rahman_CV.pdf";
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Error downloading CV:", error);
+      setMessage("Failed to download CV");
     }
   };
 
@@ -126,12 +169,13 @@ export default function ProfileManager({ onDataChange }) {
     setSaving(true);
     setMessage("");
 
-    const entries = Object.entries(profile).filter(
-      ([, value]) => typeof value === "string" && value.trim() !== "",
-    );
+    const entries = Object.entries(profile).filter(([key, value]) => {
+      if (typeof value !== "string") return false;
+      return value !== (savedProfile[key] ?? "");
+    });
 
     if (entries.length === 0) {
-      setMessage("Add at least one value before saving");
+      setMessage("No changes to save");
       setSaving(false);
       return;
     }
@@ -141,6 +185,7 @@ export default function ProfileManager({ onDataChange }) {
         entries.map(([key, value]) => saveProfileEntry(key, value)),
       );
 
+      setSavedProfile(profile);
       setMessage("Profile saved successfully");
       onDataChange?.(profile);
     } catch (error) {
@@ -354,14 +399,14 @@ export default function ProfileManager({ onDataChange }) {
               >
                 View CV
               </a>
-              <a
-                href={profile.cv_url}
-                download
+              <button
+                type="button"
+                onClick={handleDownloadCv}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-500 text-[#05202f] font-semibold hover:bg-cyan-400 transition-colors"
               >
                 <Download size={14} />
                 Download CV
-              </a>
+              </button>
             </>
           )}
         </div>

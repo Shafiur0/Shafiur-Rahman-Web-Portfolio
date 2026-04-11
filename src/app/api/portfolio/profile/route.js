@@ -23,18 +23,22 @@ export async function POST(request) {
     const body = await request.json();
     const { key, value } = body;
 
-    if (!key || !value) {
+    const normalizedKey = typeof key === "string" ? key.trim() : "";
+    const normalizedValue =
+      value === undefined || value === null ? "" : String(value);
+
+    if (!normalizedKey) {
       return Response.json(
-        { error: "Key and value are required" },
+        { error: "Key is required" },
         { status: 400 },
       );
     }
 
     const result = await sql`
       INSERT INTO profile_settings (key, value, updated_at)
-      VALUES (${key}, ${value}, CURRENT_TIMESTAMP)
+      VALUES (${normalizedKey}, ${normalizedValue}, CURRENT_TIMESTAMP)
       ON CONFLICT (key) 
-      DO UPDATE SET value = ${value}, updated_at = CURRENT_TIMESTAMP
+      DO UPDATE SET value = ${normalizedValue}, updated_at = CURRENT_TIMESTAMP
       RETURNING *
     `;
 

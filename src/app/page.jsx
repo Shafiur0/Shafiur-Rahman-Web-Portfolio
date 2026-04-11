@@ -44,6 +44,7 @@ function toExternalUrl(value) {
   if (!value || typeof value !== "string") return "";
   const trimmed = value.trim();
   if (!trimmed) return "";
+  if (/^(data|blob|mailto:|tel:)/i.test(trimmed)) return trimmed;
   return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
 
@@ -87,6 +88,7 @@ export default function HomePage() {
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
   const [contactSending, setContactSending] = useState(false);
   const [contactFeedback, setContactFeedback] = useState("");
+  const [cvDownloading, setCvDownloading] = useState(false);
   const [zoomImage, setZoomImage] = useState(null);
 
   useEffect(() => {
@@ -173,6 +175,7 @@ export default function HomePage() {
   const whatsappNumber = profile.whatsapp || profile.phone || "+8801758958055";
   const whatsappHref = toWhatsAppHref(whatsappNumber);
   const cvUrl = toExternalUrl(profile.cv_url);
+  const cvFileName = `${(fullName || "Shafiur_Rahman").trim().replace(/\s+/g, "_")}_CV.pdf`;
   const bio =
     profile.bio ||
     "Creating modern, production-ready applications that solve real-world problems through exceptional full-stack development.";
@@ -279,6 +282,40 @@ export default function HomePage() {
   const openImageZoom = (src, alt) => {
     if (!src) return;
     setZoomImage({ src, alt });
+  };
+
+  const handleDownloadCv = async () => {
+    if (!cvUrl || cvDownloading) return;
+    setCvDownloading(true);
+
+    try {
+      if (/^(data|blob):/i.test(cvUrl)) {
+        const response = await fetch(cvUrl);
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = objectUrl;
+        link.download = cvFileName;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(objectUrl);
+      } else {
+        const link = document.createElement("a");
+        link.href = cvUrl;
+        link.download = cvFileName;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }
+    } catch (error) {
+      console.error("Error downloading CV:", error);
+      window.open(cvUrl, "_blank", "noopener,noreferrer");
+    } finally {
+      setCvDownloading(false);
+    }
   };
 
   const handleContactSubmit = async (event) => {
@@ -425,13 +462,13 @@ export default function HomePage() {
                 >
                   View CV
                 </a>
-                <a
-                  href={cvUrl}
-                  download
+                <button
+                  type="button"
+                  onClick={handleDownloadCv}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-[#06B6D4] text-[#041c2f] rounded-xl font-semibold hover:bg-[#22D3EE] transition-colors"
                 >
-                  Download CV
-                </a>
+                  {cvDownloading ? "Downloading..." : "Download CV"}
+                </button>
               </>
             )}
           </div>
