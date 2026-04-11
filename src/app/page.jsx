@@ -967,7 +967,7 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center flex flex-col md:flex-row items-center justify-between gap-6">
             <p className="text-white/40 text-sm tracking-wide">
-              © {new Date().getFullYear()} Shafiur Rahman. All rights reserved.
+              © {new Date().getFullYear()} Shafiur Rahman. All rights reserved. Developed by Shafiur Rahman Shafim
             </p>
             <div className="flex items-center gap-6">
                 {socialLinks.map(({ href, icon: Icon }) => (
@@ -983,10 +983,6 @@ export default function HomePage() {
                 ))}
             </div>
           </div>
-
-          <p className="mt-5 text-center text-white/50 text-sm tracking-wide">
-            Developed by Shafiur Rahman Shafim
-          </p>
         </div>
       </footer>
 
