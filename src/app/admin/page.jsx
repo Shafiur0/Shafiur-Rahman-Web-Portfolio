@@ -185,6 +185,9 @@ export default function AdminPage() {
               <p className="text-slate-400 mt-2">
                 Add projects, achievements, skills, profile info, and links in one place.
               </p>
+              <p className="text-cyan-200/80 text-sm mt-2">
+                Important: use each section's Add/Update/Save button to store data.
+              </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
@@ -199,7 +202,7 @@ export default function AdminPage() {
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-500 text-[#072332] font-semibold hover:bg-cyan-400 transition-colors"
               >
                 <RefreshCw size={14} className={statsLoading ? "animate-spin" : ""} />
-                Save Now
+                Refresh Stats
               </button>
               <button
                 onClick={handleLogout}
