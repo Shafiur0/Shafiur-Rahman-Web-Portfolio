@@ -514,7 +514,9 @@ export default function HomePage() {
                     <img
                       src={aboutPhotoUrl}
                       alt={fullName}
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                      onClick={() => setZoomImage(aboutPhotoUrl)}
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 cursor-zoom-in"
+                      title="Click to enlarge"
                     />
                     
                     {/* Floating Info Overlay */}
@@ -1088,7 +1090,46 @@ export default function HomePage() {
         .animate-fade-in-up {
           animation-name: fadeInUp;
         }
+        @keyframes lightboxIn {
+          from { opacity: 0; transform: scale(0.85); }
+          to { opacity: 1; transform: scale(1); }
+        }
       `}} />
+
+      {/* Lightbox Modal */}
+      {zoomImage && (
+        <div
+          className="fixed inset-0 z-[999] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+          onClick={() => setZoomImage(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Image lightbox"
+        >
+          {/* Close button */}
+          <button
+            type="button"
+            onClick={() => setZoomImage(null)}
+            className="absolute top-5 right-6 text-white/60 hover:text-white transition-colors text-3xl font-light leading-none z-10"
+            aria-label="Close lightbox"
+          >
+            ✕
+          </button>
+
+          {/* Image */}
+          <img
+            src={zoomImage}
+            alt="Full size view"
+            onClick={(e) => e.stopPropagation()}
+            className="max-h-[90vh] max-w-[90vw] object-contain rounded-2xl shadow-2xl border border-white/10"
+            style={{ animation: "lightboxIn 0.3s ease-out" }}
+          />
+
+          {/* Hint text */}
+          <p className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/30 text-xs tracking-widest uppercase">
+            Click anywhere to close · ESC
+          </p>
+        </div>
+      )}
     </div>
   );
 }
