@@ -392,71 +392,85 @@ export default function HomePage() {
         id="home"
         className="min-h-screen flex items-center justify-center relative z-10 pt-20"
       >
-        <div className="max-w-5xl mx-auto px-6 text-center animate-fade-in-up" style={{ animationDuration: '0.8s', animationFillMode: 'both' }}>
-          <div className="text-[10px] md:text-xs font-semibold text-[#67E8F9] tracking-[0.3em] uppercase mb-6">
-            Welcome to my portfolio
-          </div>
+        <div className="max-w-6xl mx-auto px-6 w-full relative z-20">
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            {/* Left side: Info */}
+            <div className="lg:col-span-7 text-left order-2 lg:order-1 animate-fade-in-up" style={{ animationDuration: '0.8s', animationFillMode: 'both' }}>
+              <div className="text-[10px] md:text-xs font-semibold text-[#67E8F9] tracking-[0.3em] uppercase mb-4">
+                Welcome to my portfolio
+              </div>
 
-          <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight leading-tight">
-            <span className="text-white/95">Hi, I'm</span>
-            <br />
-            <span className="bg-gradient-to-r from-[#A855F7] to-[#38BDF8] text-transparent bg-clip-text">
-              {fullName}
-            </span>
-          </h1>
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tight leading-tight">
+                <span className="text-white/95">Hi, I'm</span>
+                <br />
+                <span className="bg-gradient-to-r from-[#A855F7] to-[#38BDF8] text-transparent bg-clip-text">
+                  {fullName}
+                </span>
+              </h1>
 
-          <p className="text-base md:text-2xl text-white/65 max-w-3xl mx-auto mb-8 leading-relaxed font-light">
-            {headline} - {bio}
-          </p>
+              <p className="text-base md:text-xl text-white/65 mb-8 leading-relaxed font-light">
+                {headline} - {bio}
+              </p>
 
-          <button
-            type="button"
-            onClick={() => openImageZoom(photoUrl, `${fullName} profile photo`)}
-            className="w-28 h-28 mx-auto rounded-2xl overflow-hidden border border-white/20 bg-white/5 mb-8 cursor-zoom-in"
-            aria-label="Open profile photo"
-          >
-            <img
-              src={photoUrl}
-              alt="Shafiur Rahman"
-              className="w-full h-full object-cover"
-            />
-          </button>
-
-          <div className="flex flex-wrap justify-center items-center gap-3 md:gap-4">
-            <a
-              href="#contact"
-              onClick={(event) => handleNavClick(event, "#contact")}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#A855F7] to-[#38BDF8] text-white rounded-xl font-semibold transition-all hover:scale-105 active:scale-95"
-            >
-              Get In Touch
-            </a>
-            <a
-              href="#portfolio"
-              onClick={(event) => handleNavClick(event, "#portfolio")}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 border border-white/20 rounded-xl font-semibold hover:bg-white/20 transition-colors"
-            >
-              View My Work
-              <ArrowRight size={16} />
-            </a>
-            {cvUrl && (
-              <>
+              <div className="flex flex-wrap items-center gap-3 md:gap-4">
                 <a
-                  href={cvUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 border border-white/20 rounded-xl font-semibold hover:bg-white/20 transition-colors"
+                  href="#contact"
+                  onClick={(event) => handleNavClick(event, "#contact")}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#A855F7] to-[#38BDF8] text-white rounded-xl font-semibold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-[#A855F7]/25"
                 >
-                  View CV
+                  Get In Touch
                 </a>
+                <a
+                  href="#portfolio"
+                  onClick={(event) => handleNavClick(event, "#portfolio")}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl font-semibold hover:bg-white/10 transition-colors"
+                >
+                  View My Work
+                  <ArrowRight size={16} />
+                </a>
+                {cvUrl && (
+                  <>
+                    <a
+                      href={cvUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl font-semibold hover:bg-white/10 transition-colors"
+                    >
+                      View CV
+                    </a>
+                    <button
+                      type="button"
+                      onClick={handleDownloadCv}
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-[#06B6D4] text-[#041c2f] rounded-xl font-semibold hover:bg-[#22D3EE] transition-colors"
+                    >
+                      {cvDownloading ? "Downloading..." : "Download CV"}
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Right side: Image */}
+            <div className="lg:col-span-5 flex justify-center order-1 lg:order-2 animate-fade-in-up" style={{ animationDuration: '1s', animationFillMode: 'both' }}>
+              <div className="relative group">
+                {/* Glowing Aura behind image */}
+                <div className="absolute -inset-1.5 bg-gradient-to-r from-[#A855F7] to-[#3B82F6] rounded-3xl blur opacity-35 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
+                
+                {/* Main image container */}
                 <button
                   type="button"
-                  onClick={handleDownloadCv}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#06B6D4] text-[#041c2f] rounded-xl font-semibold hover:bg-[#22D3EE] transition-colors"
+                  onClick={() => openImageZoom(photoUrl, `${fullName} profile photo`)}
+                  className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-[350px] md:h-[350px] rounded-3xl overflow-hidden border border-white/20 bg-white/5 cursor-zoom-in flex items-center justify-center transition-all duration-500 hover:scale-[1.02]"
+                  aria-label="Open profile photo"
                 >
-                  {cvDownloading ? "Downloading..." : "Download CV"}
+                  <img
+                    src={photoUrl}
+                    alt={fullName}
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
                 </button>
-              </>
-            )}
+              </div>
+            </div>
           </div>
         </div>
 
