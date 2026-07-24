@@ -32,6 +32,28 @@ const toDataUrl = (file) =>
     reader.readAsDataURL(file);
   });
 
+const parseMultiplePhotos = (value) => {
+  if (!value || typeof value !== "string") return [];
+  const trimmed = value.trim();
+  if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      // Fallback
+    }
+  }
+  if (trimmed.includes("|")) {
+    return trimmed.split("|").map((s) => s.trim()).filter(Boolean);
+  }
+  if (trimmed.includes(",")) {
+    if (/^data:/i.test(trimmed)) {
+      return [trimmed];
+    }
+    return trimmed.split(",").map((s) => s.trim()).filter(Boolean);
+  }
+  return [trimmed];
+};
+
 export default function ProfileManager({ onDataChange }) {
   const [profile, setProfile] = useState(DEFAULT_PROFILE);
   const [savedProfile, setSavedProfile] = useState(DEFAULT_PROFILE);
@@ -116,10 +138,8 @@ export default function ProfileManager({ onDataChange }) {
 
     let finalValue = fileUrl;
     if (field === "achievement_photo_url") {
-      const currentList = profile.achievement_photo_url
-        ? profile.achievement_photo_url.split(",").filter(Boolean)
-        : [];
-      finalValue = [...currentList, fileUrl].join(",");
+      const currentList = parseMultiplePhotos(profile.achievement_photo_url);
+      finalValue = [...currentList, fileUrl].join("|");
     }
 
     const nextProfile = {
@@ -143,11 +163,9 @@ export default function ProfileManager({ onDataChange }) {
   };
 
   const handleDeleteAchievementPhoto = async (photoUrlToDelete) => {
-    const currentList = profile.achievement_photo_url
-      ? profile.achievement_photo_url.split(",").filter(Boolean)
-      : [];
+    const currentList = parseMultiplePhotos(profile.achievement_photo_url);
     const updatedList = currentList.filter((url) => url !== photoUrlToDelete);
-    const newValue = updatedList.join(",");
+    const newValue = updatedList.join("|");
 
     const nextProfile = {
       ...profile,
@@ -416,8 +434,8 @@ export default function ProfileManager({ onDataChange }) {
           <p className="text-xs text-slate-500 mb-3">Add multiple images. They will display as an auto-loop slideshow (2s delay) in the achievements section.</p>
           
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3 mb-4">
-            {profile.achievement_photo_url && profile.achievement_photo_url.split(",").filter(Boolean).length > 0 ? (
-              profile.achievement_photo_url.split(",").filter(Boolean).map((photoUrl, index) => (
+            {parseMultiplePhotos(profile.achievement_photo_url).length > 0 ? (
+              parseMultiplePhotos(profile.achievement_photo_url).map((photoUrl, index) => (
                 <div key={index} className="relative group rounded-lg overflow-hidden border border-white/10 aspect-video bg-black/40">
                   <img
                     src={photoUrl}

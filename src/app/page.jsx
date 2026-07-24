@@ -68,6 +68,28 @@ function toMediaUrl(value) {
   return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
 
+function parseMultiplePhotos(value) {
+  if (!value || typeof value !== "string") return [];
+  const trimmed = value.trim();
+  if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      // Fallback
+    }
+  }
+  if (trimmed.includes("|")) {
+    return trimmed.split("|").map((s) => s.trim()).filter(Boolean);
+  }
+  if (trimmed.includes(",")) {
+    if (/^data:/i.test(trimmed)) {
+      return [trimmed];
+    }
+    return trimmed.split(",").map((s) => s.trim()).filter(Boolean);
+  }
+  return [trimmed];
+}
+
 function isCertificateEntry(item) {
   return /certificate|certification|credential/i.test(String(item?.icon || ""));
 }
@@ -156,15 +178,12 @@ export default function HomePage() {
     profile.photo_url ||
     "https://ucarecdn.com/f7c7966c-96e4-46a8-80c8-96c835ab609c/-/format/auto/";
   const aboutPhotoUrl = profile.about_photo_url || photoUrl;
-  const achievementSlidePhotos = (
+  const achievementSlidePhotos = parseMultiplePhotos(
     profile.achievement_photo_url ||
-    profile.achievement_slide_photo_url ||
-    profile.achievements_photo_url ||
-    ""
-  )
-    .split(",")
-    .filter(Boolean)
-    .map(toMediaUrl);
+      profile.achievement_slide_photo_url ||
+      profile.achievements_photo_url ||
+      "",
+  ).map(toMediaUrl);
   const fullName = profile.full_name || "Shafiur Rahman";
   const headline = profile.headline || "Web Developer";
   const contactEmail = profile.email || "shafiurrahman067@gmail.com";
