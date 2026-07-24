@@ -399,14 +399,15 @@ export default function HomePage() {
             alt={fullName}
             className="absolute inset-0 w-full h-full object-cover object-top"
           />
-          {/* Vertical label inside the left column, overlaying the image near the right border */}
-          <div className="absolute right-6 bottom-24 origin-bottom-right -rotate-90 select-none hidden lg:block z-20">
-            <span className="text-[11px] uppercase tracking-[0.4em] font-extrabold text-slate-800/70 whitespace-nowrap">
-              Software Engineer & Developer
-            </span>
-          </div>
           {/* Bottom fade out gradient for mobile */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#000428] via-transparent to-transparent lg:hidden"></div>
+        </div>
+
+        {/* Vertical rotated text label positioned on the dark blue background just to the right of the split line */}
+        <div className="absolute left-[42%] top-1/2 -translate-y-1/2 ml-5 origin-left -rotate-90 select-none hidden lg:block z-30 pointer-events-none">
+          <span className="text-[10px] uppercase tracking-[0.4em] font-semibold text-white/30 whitespace-nowrap">
+            Software Engineer & Developer
+          </span>
         </div>
 
         {/* Right Column: Content on desktop */}
