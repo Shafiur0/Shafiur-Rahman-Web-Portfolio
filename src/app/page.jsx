@@ -390,133 +390,192 @@ export default function HomePage() {
       {/* 1. Hero Section */}
       <section
         id="home"
-        className="min-h-screen flex items-center justify-center relative z-10 pt-20"
+        className="min-h-screen relative z-10 lg:flex items-stretch overflow-hidden pt-16 lg:pt-0 bg-[#000428]"
       >
-        <div className="max-w-6xl mx-auto px-6 w-full relative z-20">
-          <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-            {/* Left side: Info */}
-            <div className="lg:col-span-7 text-left order-2 lg:order-1 animate-fade-in-up" style={{ animationDuration: '0.8s', animationFillMode: 'both' }}>
-              <div className="text-[10px] md:text-xs font-semibold text-[#67E8F9] tracking-[0.3em] uppercase mb-4">
-                Welcome to my portfolio
-              </div>
-
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tight leading-tight">
-                <span className="text-white/95">Hi, I'm</span>
-                <br />
-                <span className="bg-gradient-to-r from-[#A855F7] to-[#38BDF8] text-transparent bg-clip-text">
-                  {fullName}
-                </span>
-              </h1>
-
-              <p className="text-base md:text-xl text-white/65 mb-8 leading-relaxed font-light">
-                {headline} - {bio}
-              </p>
-
-              <div className="flex flex-wrap items-center gap-3 md:gap-4">
-                <a
-                  href="#contact"
-                  onClick={(event) => handleNavClick(event, "#contact")}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#A855F7] to-[#38BDF8] text-white rounded-xl font-semibold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-[#A855F7]/25"
-                >
-                  Get In Touch
-                </a>
-                <a
-                  href="#portfolio"
-                  onClick={(event) => handleNavClick(event, "#portfolio")}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl font-semibold hover:bg-white/10 transition-colors"
-                >
-                  View My Work
-                  <ArrowRight size={16} />
-                </a>
-                {cvUrl && (
-                  <>
-                    <a
-                      href={cvUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl font-semibold hover:bg-white/10 transition-colors"
-                    >
-                      View CV
-                    </a>
-                    <button
-                      type="button"
-                      onClick={handleDownloadCv}
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-[#06B6D4] text-[#041c2f] rounded-xl font-semibold hover:bg-[#22D3EE] transition-colors"
-                    >
-                      {cvDownloading ? "Downloading..." : "Download CV"}
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Right side: Image */}
-            <div className="lg:col-span-5 flex justify-center order-1 lg:order-2 animate-fade-in-up" style={{ animationDuration: '1s', animationFillMode: 'both' }}>
-              <div className="relative group">
-                {/* Glowing Aura behind image */}
-                <div className="absolute -inset-1.5 bg-gradient-to-r from-[#A855F7] to-[#3B82F6] rounded-3xl blur opacity-35 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
-                
-                {/* Main image container */}
-                <button
-                  type="button"
-                  onClick={() => openImageZoom(photoUrl, `${fullName} profile photo`)}
-                  className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-[350px] md:h-[350px] rounded-3xl overflow-hidden border border-white/20 bg-white/5 cursor-zoom-in flex items-center justify-center transition-all duration-500 hover:scale-[1.02]"
-                  aria-label="Open profile photo"
-                >
-                  <img
-                    src={photoUrl}
-                    alt={fullName}
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
-                </button>
-              </div>
-            </div>
+        {/* Left Column: Full height Image container on desktop */}
+        <div className="w-full lg:w-[42%] relative min-h-[50vh] lg:min-h-screen flex-shrink-0 bg-[#020732]">
+          <img
+            src={photoUrl}
+            alt={fullName}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          {/* Vertical rotated text label */}
+          <div className="absolute right-4 bottom-20 origin-bottom-right rotate-90 translate-x-full pr-8 hidden lg:block">
+            <span className="text-[10px] uppercase tracking-[0.4em] font-semibold text-white/30 whitespace-nowrap">
+              Software Engineer & Developer
+            </span>
           </div>
+          {/* Bottom fade out gradient for mobile */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#000428] via-transparent to-transparent lg:hidden"></div>
         </div>
 
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30 animate-bounce">
-          <ChevronDown size={20} />
+        {/* Right Column: Content on desktop */}
+        <div className="flex-grow flex flex-col justify-center px-6 sm:px-12 lg:px-20 py-16 lg:py-24 relative z-20">
+          
+          {/* Statistics Grid */}
+          <div className="grid grid-cols-3 gap-6 max-w-lg mb-12 animate-fade-in-up" style={{ animationDuration: '0.6s', animationFillMode: 'both' }}>
+            <div>
+              <div className="text-3xl md:text-4xl font-black text-white">+3</div>
+              <div className="text-[9px] uppercase tracking-[0.2em] text-[#38BDF8] mt-1 font-semibold">Years Exp</div>
+            </div>
+            <div>
+              <div className="text-3xl md:text-4xl font-black text-white">+{projects.length}</div>
+              <div className="text-[9px] uppercase tracking-[0.2em] text-[#A855F7] mt-1 font-semibold">Projects</div>
+            </div>
+            <div>
+              <div className="text-3xl md:text-4xl font-black text-white">100%</div>
+              <div className="text-[9px] uppercase tracking-[0.2em] text-[#22D3EE] mt-1 font-semibold">Dedication</div>
+            </div>
+          </div>
+
+          <div className="animate-fade-in-up" style={{ animationDuration: '0.8s', animationFillMode: 'both' }}>
+            <h1 className="text-6xl md:text-8xl font-black mb-4 tracking-tight leading-none text-white/95">
+              Hello
+            </h1>
+
+            <div className="flex items-center gap-3 mb-6">
+              <span className="w-8 h-[2px] bg-[#A855F7]"></span>
+              <p className="text-lg md:text-xl font-semibold text-[#67E8F9] tracking-wider uppercase">
+                — It's {fullName}
+              </p>
+            </div>
+
+            <p className="text-xl md:text-2xl font-bold bg-gradient-to-r from-white to-white/60 text-transparent bg-clip-text mb-6">
+              {headline || "Software Engineer & Developer"}
+            </p>
+
+            <p className="text-base md:text-lg text-white/60 max-w-2xl mb-10 leading-relaxed font-light">
+              {bio}
+            </p>
+
+            <div className="flex flex-wrap items-center gap-4">
+              <a
+                href="#portfolio"
+                onClick={(event) => handleNavClick(event, "#portfolio")}
+                className="inline-flex items-center gap-2 px-8 py-3.5 bg-white text-[#000428] rounded-xl font-bold transition-all hover:scale-105 active:scale-95 shadow-xl shadow-white/10"
+              >
+                View Portfolio
+                <ArrowRight size={16} />
+              </a>
+              {cvUrl && (
+                <>
+                  <a
+                    href={cvUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-8 py-3.5 bg-transparent border border-white/20 text-white rounded-xl font-bold hover:bg-white/10 hover:border-white/40 transition-colors"
+                  >
+                    View CV
+                  </a>
+                  <button
+                    type="button"
+                    onClick={handleDownloadCv}
+                    className="inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-[#A855F7] to-[#06B6D4] text-white rounded-xl font-bold hover:opacity-90 transition-opacity"
+                  >
+                    {cvDownloading ? "Downloading..." : "Download CV"}
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       </section>
 
       {/* 2. About Section */}
-      <section id="about" className="py-32 relative z-10 w-full">
+      <section id="about" className="py-32 relative z-10 w-full bg-[#000428]/40 border-y border-white/5">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="mb-16">
-            <div className="text-sm tracking-[0.3em] font-medium text-[#A855F7] uppercase mb-4">— ABOUT ME</div>
-            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-white/50 text-transparent bg-clip-text">
-              Engineering Excellence
-            </h2>
-          </div>
-
-          <div className="grid lg:grid-cols-2 gap-16 items-start">
-            <div className="text-lg text-white/60 leading-relaxed font-light space-y-6">
-              <p>
-                I'm Shafiur Rahman, a professional Software Engineer specializing in Full-Stack Development. I create modern, eye-catching, and production-ready applications that not only look visually stunning but also perform effectively in real-world scenarios.
-              </p>
-              <p>
-                With deep expertise in modern web technologies, scalable backend architectures, and delightful UI/UX design, I bridge the gap between creative vision and technical reality. Let's build something extraordinary together.
-              </p>
-              
-              <div className="pt-6">
-                <a href="#contact" onClick={(event) => handleNavClick(event, "#contact")} className="inline-flex items-center gap-2 text-white font-semibold hover:text-[#A855F7] transition-colors border-b border-white/20 hover:border-[#A855F7] pb-1">
-                  Let's Discuss Concept <ArrowRight size={16} />
-                </a>
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            
+            {/* Left side: Photo Card */}
+            <div className="lg:col-span-5 flex justify-center">
+              <div className="relative group w-full max-w-sm">
+                {/* Glowing outline */}
+                <div className="absolute -inset-1.5 bg-gradient-to-r from-[#A855F7] to-[#3B82F6] rounded-3xl blur opacity-20 group-hover:opacity-35 transition duration-1000"></div>
+                
+                {/* Image Container Card */}
+                <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-[#081327]/90 p-3 shadow-2xl">
+                  <div className="aspect-[4/5] rounded-2xl overflow-hidden relative">
+                    <img
+                      src={photoUrl}
+                      alt={fullName}
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                    
+                    {/* Floating Info Overlay */}
+                    <div className="absolute bottom-4 left-4 right-4 bg-[#000428]/85 backdrop-blur-md border border-white/10 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-xl">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] animate-pulse"></span>
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-white">
+                          {contactLocation}
+                        </span>
+                      </div>
+                      <span className="text-[9px] text-[#22D3EE] uppercase tracking-widest font-semibold">
+                        Available for work
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-6">
-              <div className="p-8 rounded-3xl bg-white/5 border border-white/5 backdrop-blur-sm group hover:border-[#A855F7]/30 transition-colors">
-                <Code className="text-[#A855F7] mb-6" size={32} />
-                <div className="text-4xl font-black text-white mb-2">{projects.length}+</div>
-                <div className="text-sm tracking-wide text-white/40 uppercase">Projects <br/>Completed</div>
+            {/* Right side: Detailed Description & Metrics */}
+            <div className="lg:col-span-7 text-left space-y-6">
+              <div>
+                <div className="text-xs tracking-[0.3em] font-bold text-[#A855F7] uppercase mb-3">
+                  — ABOUT ME
+                </div>
+                <h2 className="text-3xl md:text-5xl font-black bg-gradient-to-r from-white via-white to-white/50 text-transparent bg-clip-text leading-tight tracking-tight">
+                  Designing robust code that performs in production
+                </h2>
               </div>
-              <div className="p-8 rounded-3xl bg-white/5 border border-white/5 backdrop-blur-sm group hover:border-[#3B82F6]/30 transition-colors">
-                <Calendar className="text-[#3B82F6] mb-6" size={32} />
-                <div className="text-4xl font-black text-white mb-2">3+</div>
-                <div className="text-sm tracking-wide text-white/40 uppercase">Years of <br/>Experience</div>
+
+              <h3 className="text-lg md:text-xl font-semibold text-[#67E8F9] tracking-wide">
+                {fullName} | Full-Stack Software Engineer
+              </h3>
+
+              <div className="text-base md:text-lg text-white/60 leading-relaxed font-light space-y-4">
+                <p>
+                  I'm Shafiur Rahman, a software engineering student specializing in Full-Stack Web Development. I focus on creating high-performance, eye-catching, and production-ready applications that solve real-world problems.
+                </p>
+                <p>
+                  With experience spanning client-side design patterns, server pre-rendering, and PostgreSQL database logic, I bridge the gap between creative visual layouts and efficient technical execution.
+                </p>
+              </div>
+
+              {/* Mini Metrics Row */}
+              <div className="grid grid-cols-3 gap-4 pt-4">
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 shadow-lg">
+                  <div className="text-[10px] uppercase tracking-widest text-[#A855F7] font-bold">Expertise</div>
+                  <div className="text-sm font-bold text-white mt-1">Web & APIs</div>
+                </div>
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 shadow-lg">
+                  <div className="text-[10px] uppercase tracking-widest text-[#3B82F6] font-bold">Experience</div>
+                  <div className="text-sm font-bold text-white mt-1">3+ Years</div>
+                </div>
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 shadow-lg">
+                  <div className="text-[10px] uppercase tracking-widest text-[#22D3EE] font-bold">Projects</div>
+                  <div className="text-sm font-bold text-white mt-1">+{projects.length} Completed</div>
+                </div>
+              </div>
+
+              {/* Technologies Pills */}
+              <div className="pt-6 space-y-3">
+                <div className="text-xs font-semibold text-white/40 uppercase tracking-widest">
+                  Key Technologies:
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {["React", "Next.js", "React Router v7", "Node.js", "PostgreSQL", "Vercel CDN", "Tailwind CSS", "Vite"].map((tech) => (
+                    <span
+                      key={tech}
+                      className="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-white/70 bg-white/5 border border-white/10 rounded-full hover:text-white hover:border-[#A855F7]/50 hover:bg-[#A855F7]/10 transition-colors cursor-default"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
+
           </div>
         </div>
       </section>
