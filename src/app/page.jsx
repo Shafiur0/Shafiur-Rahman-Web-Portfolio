@@ -452,6 +452,10 @@ export default function HomePage() {
           />
           {/* Bottom fade out gradient for mobile */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#000428] via-transparent to-transparent lg:hidden"></div>
+          {/* Right-edge glow bar — desktop only */}
+          <div className="hidden lg:block absolute right-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#A855F7] via-[#3B82F6] to-[#06B6D4] opacity-80 shadow-[0_0_32px_6px_rgba(168,85,247,0.55)]"></div>
+          {/* Subtle purple corner accent */}
+          <div className="hidden lg:block absolute bottom-0 right-0 w-40 h-40 bg-gradient-to-tl from-[#A855F7]/20 to-transparent pointer-events-none"></div>
         </div>
 
         {/* Vertical rotated text label positioned on the dark blue background just to the right of the split line */}
@@ -541,8 +545,9 @@ export default function HomePage() {
             {/* Left side: Photo Card */}
             <div className="lg:col-span-5 flex justify-center">
               <div className="relative group w-full max-w-sm">
-                {/* Glowing outline */}
-                <div className="absolute -inset-1.5 bg-gradient-to-r from-[#A855F7] to-[#3B82F6] rounded-3xl blur opacity-20 group-hover:opacity-35 transition duration-1000"></div>
+                {/* Animated glowing border */}
+                <div className="absolute -inset-[3px] rounded-3xl bg-gradient-to-r from-[#A855F7] via-[#3B82F6] to-[#06B6D4] opacity-40 group-hover:opacity-70 blur-sm transition-all duration-700" style={{ animation: 'glow-pulse 3s ease-in-out infinite' }}></div>
+                <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-[#A855F7] via-[#3B82F6] to-[#06B6D4] opacity-60 group-hover:opacity-90 transition-all duration-700"></div>
                 
                 {/* Image Container Card */}
                 <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-[#081327]/90 p-3 shadow-2xl">
@@ -1172,6 +1177,10 @@ export default function HomePage() {
         @keyframes lightboxIn {
           from { opacity: 0; transform: scale(0.85); }
           to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes glow-pulse {
+          0%, 100% { opacity: 0.35; filter: blur(4px); }
+          50% { opacity: 0.65; filter: blur(7px); }
         }
       `}} />
 
