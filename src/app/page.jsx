@@ -1,6 +1,11 @@
-"use client";
 
 import { useState, useEffect } from "react";
+import { useLoaderData } from "react-router";
+import { getPortfolioData } from "./page.queries.js";
+
+export async function loader() {
+  return getPortfolioData();
+}
 import {
   Mail,
   Github,
@@ -78,11 +83,22 @@ function toScore(value, fallback = 80) {
 }
 
 export default function HomePage() {
-  const [skills, setSkills] = useState([]);
-  const [projects, setProjects] = useState([]);
-  const [achievements, setAchievements] = useState([]);
-  const [profile, setProfile] = useState({});
-  const [loading, setLoading] = useState(true);
+  const initialData = useLoaderData();
+
+  const [skills, setSkills] = useState(initialData?.skills || []);
+  const [projects, setProjects] = useState(initialData?.projects || []);
+  const [achievements, setAchievements] = useState(initialData?.achievements || []);
+  const [profile, setProfile] = useState(initialData?.profile || {});
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (initialData) {
+      setSkills(initialData.skills || []);
+      setProjects(initialData.projects || []);
+      setAchievements(initialData.achievements || []);
+      setProfile(initialData.profile || {});
+    }
+  }, [initialData]);
   const [scrolled, setScrolled] = useState(false);
   const [visibleSections, setVisibleSections] = useState({});
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
@@ -114,37 +130,7 @@ export default function HomePage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        const [skillsRes, projectsRes, achievementsRes, profileRes] =
-          await Promise.all([
-            fetch("/api/portfolio/skills"),
-            fetch("/api/portfolio/projects"),
-            fetch("/api/portfolio/achievements"),
-            fetch("/api/portfolio/profile"),
-          ]);
-        const [skillsData, projectsData, achievementsData, profileData] =
-          await Promise.all([
-            skillsRes.json(),
-            projectsRes.json(),
-            achievementsRes.json(),
-            profileRes.json(),
-          ]);
-        setSkills(Array.isArray(skillsData) ? skillsData : []);
-        setProjects(Array.isArray(projectsData) ? projectsData : []);
-        setAchievements(
-          Array.isArray(achievementsData) ? achievementsData : [],
-        );
-        setProfile(profileData || {});
-      } catch (error) {
-        console.error("Error fetching portfolio data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAll();
-  }, []);
+
 
   useEffect(() => {
     if (!zoomImage) return undefined;
@@ -392,12 +378,6 @@ export default function HomePage() {
                 <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-[#3B82F6] to-[#A855F7] transition-all group-hover:w-full"></span>
               </a>
             ))}
-            <a
-              href="/admin"
-              className="px-6 py-2.5 bg-white text-[#000428] text-sm rounded-full font-bold hover:scale-105 active:scale-95 transition-all"
-            >
-              ADMIN
-            </a>
           </div>
         </div>
       </nav>
