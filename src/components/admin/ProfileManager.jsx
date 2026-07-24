@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Camera, Download, Save, Upload } from "lucide-react";
+import { Camera, Download, Save, Upload, Trash2 } from "lucide-react";
 import useUpload from "@/utils/useUpload";
 
 const DEFAULT_PROFILE = {
@@ -114,23 +114,58 @@ export default function ProfileManager({ onDataChange }) {
       fileUrl = url;
     }
 
+    let finalValue = fileUrl;
+    if (field === "achievement_photo_url") {
+      const currentList = profile.achievement_photo_url
+        ? profile.achievement_photo_url.split(",").filter(Boolean)
+        : [];
+      finalValue = [...currentList, fileUrl].join(",");
+    }
+
     const nextProfile = {
       ...profile,
-      [field]: fileUrl,
+      [field]: finalValue,
     };
     setProfile(nextProfile);
 
     try {
-      await saveProfileEntry(field, fileUrl);
+      await saveProfileEntry(field, finalValue);
       setMessage("File uploaded and saved successfully");
       setSavedProfile((prev) => ({
         ...prev,
-        [field]: fileUrl,
+        [field]: finalValue,
       }));
       onDataChange?.(nextProfile);
     } catch (saveError) {
       console.error("Error saving uploaded file:", saveError);
       setMessage("Upload succeeded, but saving failed. Try Save Now.");
+    }
+  };
+
+  const handleDeleteAchievementPhoto = async (photoUrlToDelete) => {
+    const currentList = profile.achievement_photo_url
+      ? profile.achievement_photo_url.split(",").filter(Boolean)
+      : [];
+    const updatedList = currentList.filter((url) => url !== photoUrlToDelete);
+    const newValue = updatedList.join(",");
+
+    const nextProfile = {
+      ...profile,
+      achievement_photo_url: newValue,
+    };
+    setProfile(nextProfile);
+
+    try {
+      await saveProfileEntry("achievement_photo_url", newValue);
+      setMessage("Photo removed successfully");
+      setSavedProfile((prev) => ({
+        ...prev,
+        achievement_photo_url: newValue,
+      }));
+      onDataChange?.(nextProfile);
+    } catch (saveError) {
+      console.error("Error saving updated profile setting:", saveError);
+      setMessage("Failed to save changes. Try Save Now.");
     }
   };
 
@@ -329,7 +364,7 @@ export default function ProfileManager({ onDataChange }) {
         placeholder="About/Bio"
       />
 
-      <div className="grid md:grid-cols-3 gap-6 mb-6">
+      <div className="grid md:grid-cols-2 gap-6 mb-6">
         <div className="rounded-xl border border-cyan-500/20 p-4 bg-[#0f1f3a]">
           <p className="text-sm text-slate-300 mb-1">Profile Photo</p>
           <p className="text-xs text-slate-500 mb-3">Used in the Hero section (left column)</p>
@@ -376,19 +411,39 @@ export default function ProfileManager({ onDataChange }) {
           </label>
         </div>
 
-        <div className="rounded-xl border border-cyan-500/20 p-4 bg-[#0f1f3a]">
-          <p className="text-sm text-slate-300 mb-1">Achievement Slide Photo</p>
-          <p className="text-xs text-slate-500 mb-3">Used in the achievements section slideshow</p>
-          {profile.achievement_photo_url && (
-            <img
-              src={profile.achievement_photo_url}
-              alt="Achievement"
-              className="w-full h-32 object-cover rounded-lg border border-cyan-500/20 mb-3"
-            />
-          )}
+        <div className="rounded-xl border border-cyan-500/20 p-4 bg-[#0f1f3a] md:col-span-2">
+          <p className="text-sm text-slate-300 mb-1">Achievement Slide Photos</p>
+          <p className="text-xs text-slate-500 mb-3">Add multiple images. They will display as an auto-loop slideshow (2s delay) in the achievements section.</p>
+          
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3 mb-4">
+            {profile.achievement_photo_url && profile.achievement_photo_url.split(",").filter(Boolean).length > 0 ? (
+              profile.achievement_photo_url.split(",").filter(Boolean).map((photoUrl, index) => (
+                <div key={index} className="relative group rounded-lg overflow-hidden border border-white/10 aspect-video bg-black/40">
+                  <img
+                    src={photoUrl}
+                    alt={`Achievement Slide ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteAchievementPhoto(photoUrl)}
+                    className="absolute inset-0 bg-red-600/80 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"
+                    title="Delete photo"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full py-4 text-center text-xs text-slate-500 italic">
+                No achievement slide photos uploaded yet.
+              </div>
+            )}
+          </div>
+
           <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-500/20 border border-cyan-400/40 text-cyan-100 cursor-pointer hover:bg-cyan-500/30 transition-colors">
             <Upload size={16} />
-            {uploading ? "Uploading..." : "Choose Photo"}
+            {uploading ? "Uploading..." : "Add Achievement Photo"}
             <input
               type="file"
               accept="image/*"

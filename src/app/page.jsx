@@ -113,6 +113,7 @@ export default function HomePage() {
   const [contactFeedback, setContactFeedback] = useState("");
   const [cvDownloading, setCvDownloading] = useState(false);
   const [zoomImage, setZoomImage] = useState(null);
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -139,6 +140,16 @@ export default function HomePage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [zoomImage]);
 
+  useEffect(() => {
+    if (achievementSlidePhotos.length <= 1) return undefined;
+
+    const timer = setInterval(() => {
+      setActiveSlideIndex((prev) => (prev + 1) % achievementSlidePhotos.length);
+    }, 2000);
+
+    return () => clearInterval(timer);
+  }, [achievementSlidePhotos.length]);
+
   const handleNavClick = (event, href) => {
     event.preventDefault();
     const id = href.replace("#", "");
@@ -153,11 +164,15 @@ export default function HomePage() {
     profile.photo_url ||
     "https://ucarecdn.com/f7c7966c-96e4-46a8-80c8-96c835ab609c/-/format/auto/";
   const aboutPhotoUrl = profile.about_photo_url || photoUrl;
-  const achievementSlidePhoto = toMediaUrl(
+  const achievementSlidePhotos = (
     profile.achievement_photo_url ||
-      profile.achievement_slide_photo_url ||
-      profile.achievements_photo_url,
-  );
+    profile.achievement_slide_photo_url ||
+    profile.achievements_photo_url ||
+    ""
+  )
+    .split(",")
+    .filter(Boolean)
+    .map(toMediaUrl);
   const fullName = profile.full_name || "Shafiur Rahman";
   const headline = profile.headline || "Web Developer";
   const contactEmail = profile.email || "shafiurrahman067@gmail.com";
@@ -765,20 +780,62 @@ export default function HomePage() {
                </h2>
             </div>
 
-            {achievementSlidePhoto && (
-              <div className="mb-12 rounded-2xl overflow-hidden border border-white/15 bg-white/5">
+            {achievementSlidePhotos.length > 0 && (
+              <div className="mb-12 rounded-2xl overflow-hidden border border-white/15 bg-white/5 relative group/slider">
+                {/* Image display */}
                 <button
                   type="button"
-                  onClick={() => openImageZoom(achievementSlidePhoto, "Achievement slide")}
-                  className="w-full cursor-zoom-in"
-                  aria-label="Open achievement slide photo"
+                  onClick={() => openImageZoom(achievementSlidePhotos[activeSlideIndex], "Achievement slide")}
+                  className="w-full cursor-zoom-in block relative h-52 md:h-72 bg-black/40 overflow-hidden"
+                  aria-label="Open active achievement slide photo"
                 >
                   <img
-                    src={achievementSlidePhoto}
-                    alt="Achievement slide"
-                    className="w-full h-52 md:h-72 object-cover"
+                    src={achievementSlidePhotos[activeSlideIndex]}
+                    alt={`Achievement slide ${activeSlideIndex + 1}`}
+                    className="w-full h-full object-cover transition-transform duration-500"
+                    key={activeSlideIndex}
+                    style={{ animation: "fadeInUp 0.5s ease-out" }}
                   />
                 </button>
+
+                {/* Left/Right manual slide buttons */}
+                {achievementSlidePhotos.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSlideIndex((prev) => (prev - 1 + achievementSlidePhotos.length) % achievementSlidePhotos.length)}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#000428]/60 backdrop-blur-md border border-white/10 text-white flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity hover:bg-[#000428]/80 hover:scale-105"
+                      aria-label="Previous slide"
+                    >
+                      ❮
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSlideIndex((prev) => (prev + 1) % achievementSlidePhotos.length)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#000428]/60 backdrop-blur-md border border-white/10 text-white flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity hover:bg-[#000428]/80 hover:scale-105"
+                      aria-label="Next slide"
+                    >
+                      ❯
+                    </button>
+                  </>
+                )}
+
+                {/* Dots indicator at the bottom */}
+                {achievementSlidePhotos.length > 1 && (
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/5">
+                    {achievementSlidePhotos.map((_, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setActiveSlideIndex(idx)}
+                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                          idx === activeSlideIndex ? "bg-[#3B82F6] w-4" : "bg-white/40 hover:bg-white/60"
+                        }`}
+                        aria-label={`Go to slide ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
