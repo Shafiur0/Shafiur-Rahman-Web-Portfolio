@@ -140,15 +140,7 @@ export default function HomePage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [zoomImage]);
 
-  useEffect(() => {
-    if (achievementSlidePhotos.length <= 1) return undefined;
 
-    const timer = setInterval(() => {
-      setActiveSlideIndex((prev) => (prev + 1) % achievementSlidePhotos.length);
-    }, 2000);
-
-    return () => clearInterval(timer);
-  }, [achievementSlidePhotos.length]);
 
   const handleNavClick = (event, href) => {
     event.preventDefault();
@@ -236,6 +228,16 @@ export default function HomePage() {
     acc[skill.category].push(skill);
     return acc;
   }, {});
+
+  useEffect(() => {
+    if (achievementSlidePhotos.length <= 1) return undefined;
+
+    const timer = setInterval(() => {
+      setActiveSlideIndex((prev) => (prev + 1) % achievementSlidePhotos.length);
+    }, 2000);
+
+    return () => clearInterval(timer);
+  }, [achievementSlidePhotos.length]);
 
   const skillCategoryCards = Object.entries(skillsByCategory).map(
     ([category, categorySkills]) => ({
