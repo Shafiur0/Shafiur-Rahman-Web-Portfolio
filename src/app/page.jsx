@@ -390,18 +390,20 @@ export default function HomePage() {
       {/* 1. Hero Section */}
       <section
         id="home"
-        className="min-h-screen relative z-10 lg:flex items-stretch overflow-hidden pt-16 lg:pt-0 bg-[#000428]"
+        className="min-h-screen relative z-10 lg:flex items-stretch overflow-hidden pt-16 lg:pt-0"
       >
         {/* Left Column: Full height Image container on desktop */}
-        <div className="w-full lg:w-[42%] relative min-h-[50vh] lg:min-h-screen flex-shrink-0 bg-[#020732]">
+        <div className="w-full lg:w-[42%] relative min-h-[50vh] lg:min-h-screen flex-shrink-0">
           <img
             src={photoUrl}
             alt={fullName}
             className="absolute inset-0 w-full h-full object-cover"
           />
 
-          {/* Bottom fade out gradient for mobile */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#000428] via-transparent to-transparent lg:hidden"></div>
+          {/* Bottom fade — mobile and desktop */}
+          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#000428] to-transparent lg:h-48"></div>
+          {/* Right edge fade — desktop only, blends into content column */}
+          <div className="absolute top-0 right-0 bottom-0 w-20 bg-gradient-to-l from-[#000428] to-transparent hidden lg:block"></div>
         </div>
 
         {/* Right Column: Content on desktop */}
@@ -477,7 +479,7 @@ export default function HomePage() {
       </section>
 
       {/* 2. About Section */}
-      <section id="about" className="py-32 relative z-10 w-full bg-[#000428]/40 border-y border-white/5">
+      <section id="about" className="py-32 relative z-10 w-full">
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             
