@@ -399,12 +399,7 @@ export default function HomePage() {
             alt={fullName}
             className="absolute inset-0 w-full h-full object-cover"
           />
-          {/* Vertical text label */}
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 hidden lg:block z-30 select-none">
-            <span className="text-[10px] uppercase tracking-[0.4em] font-semibold text-white/30 [writing-mode:vertical-lr] rotate-180">
-              Software Engineer & Developer
-            </span>
-          </div>
+
           {/* Bottom fade out gradient for mobile */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#000428] via-transparent to-transparent lg:hidden"></div>
         </div>
