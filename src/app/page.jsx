@@ -452,10 +452,19 @@ export default function HomePage() {
           />
           {/* Bottom fade out gradient for mobile */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#000428] via-transparent to-transparent lg:hidden"></div>
-          {/* Right-edge glow bar — desktop only */}
-          <div className="hidden lg:block absolute right-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#A855F7] via-[#3B82F6] to-[#06B6D4] opacity-80 shadow-[0_0_32px_6px_rgba(168,85,247,0.55)]"></div>
-          {/* Subtle purple corner accent */}
-          <div className="hidden lg:block absolute bottom-0 right-0 w-40 h-40 bg-gradient-to-tl from-[#A855F7]/20 to-transparent pointer-events-none"></div>
+          {/* Animated gradient border overlay — desktop only */}
+          <div className="hidden lg:block absolute inset-0 pointer-events-none" style={{ boxShadow: 'inset 0 0 0 3px transparent, inset 0 0 40px 0 rgba(168,85,247,0.15)' }}>
+            {/* Top edge */}
+            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#A855F7] via-[#3B82F6] to-[#06B6D4] opacity-80" style={{ animation: 'glow-pulse 3s ease-in-out infinite' }}></div>
+            {/* Right edge */}
+            <div className="absolute top-0 right-0 bottom-0 w-[3px] bg-gradient-to-b from-[#A855F7] via-[#3B82F6] to-[#06B6D4] opacity-80" style={{ animation: 'glow-pulse 3s ease-in-out infinite' }}></div>
+            {/* Bottom edge */}
+            <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#06B6D4] via-[#3B82F6] to-[#A855F7] opacity-80" style={{ animation: 'glow-pulse 3s ease-in-out infinite' }}></div>
+            {/* Left edge */}
+            <div className="absolute top-0 left-0 bottom-0 w-[3px] bg-gradient-to-b from-[#06B6D4] via-[#3B82F6] to-[#A855F7] opacity-80" style={{ animation: 'glow-pulse 3s ease-in-out infinite' }}></div>
+            {/* Outer glow bleed */}
+            <div className="absolute inset-0 shadow-[inset_0_0_30px_rgba(168,85,247,0.12)]"></div>
+          </div>
         </div>
 
         {/* Vertical rotated text label positioned on the dark blue background just to the right of the split line */}
