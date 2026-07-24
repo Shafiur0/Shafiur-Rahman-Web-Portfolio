@@ -367,22 +367,36 @@ export default function HomePage() {
             : "bg-transparent py-6"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          <div className="lg:hidden text-2xl font-bold bg-gradient-to-r from-[#A855F7] to-[#38BDF8] text-transparent bg-clip-text transition-colors cursor-pointer tracking-tight">
+        <div className="w-full px-6 flex items-center">
+          {/* Mobile: show name logo */}
+          <div className="lg:hidden text-xl font-bold bg-gradient-to-r from-[#A855F7] to-[#38BDF8] text-transparent bg-clip-text tracking-tight whitespace-nowrap mr-auto">
             {fullName}
           </div>
-          <div className="hidden md:flex items-center gap-10">
+
+          {/* Desktop: spacer to push nav links into the right column */}
+          <div className="hidden lg:block" style={{ width: "42%" }} />
+
+          {/* Nav links — shown on md+ */}
+          <div className="hidden md:flex items-center gap-8 ml-auto">
             {NAV_ITEMS.map((item) => (
               <a
                 key={item.label}
                 href={item.href}
                 onClick={(event) => handleNavClick(event, item.href)}
-                className="text-[12px] tracking-[0.2em] text-white/50 font-medium transition-colors hover:text-white relative group uppercase"
+                className="text-[11px] tracking-[0.2em] text-white/50 font-medium transition-colors hover:text-white relative group uppercase"
               >
                 {item.label}
                 <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-[#3B82F6] to-[#A855F7] transition-all group-hover:w-full"></span>
               </a>
             ))}
+            {/* Hire Me CTA */}
+            <a
+              href="#contact"
+              onClick={(event) => handleNavClick(event, "#contact")}
+              className="ml-4 px-5 py-2 rounded-lg bg-gradient-to-r from-[#A855F7] to-[#3B82F6] text-white text-[11px] font-bold tracking-widest uppercase hover:opacity-90 transition-opacity shadow-lg shadow-purple-500/20"
+            >
+              Hire Me
+            </a>
           </div>
         </div>
       </nav>
