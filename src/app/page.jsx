@@ -387,72 +387,64 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* ===== HERO + ABOUT: Unified sticky layout ===== */}
-      <div className="relative z-10 lg:flex lg:items-start" id="home">
-
-        {/* LEFT: Sticky photo column — stays fixed as right side scrolls */}
-        <div className="hidden lg:block lg:w-[42%] flex-shrink-0 sticky top-0 h-screen overflow-hidden border-r border-white/10">
+      {/* 1. Hero Section */}
+      <section
+        id="home"
+        className="min-h-screen relative z-10 lg:flex items-stretch overflow-hidden pt-16 lg:pt-0"
+      >
+        {/* Left Column: Full height Image container on desktop */}
+        <div className="w-full lg:w-[42%] relative min-h-[50vh] lg:min-h-screen flex-shrink-0">
           <img
             src={photoUrl}
             alt={fullName}
             className="absolute inset-0 w-full h-full object-cover object-top"
           />
-
-          {/* Name badge at bottom */}
-          <div className="absolute bottom-10 left-8 right-8">
-            <div className="bg-[#000428]/80 backdrop-blur-md border border-white/10 rounded-2xl px-5 py-3 flex items-center justify-between shadow-2xl">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] animate-pulse" />
-                <span className="text-xs font-bold uppercase tracking-wider text-white">{contactLocation}</span>
-              </div>
-              <span className="text-[10px] text-[#22D3EE] uppercase tracking-widest font-semibold">Available for work</span>
-            </div>
+          {/* Vertical label inside the left column, overlaying the image near the right border */}
+          <div className="absolute right-6 bottom-24 origin-bottom-right -rotate-90 select-none hidden lg:block z-20">
+            <span className="text-[10px] uppercase tracking-[0.4em] font-semibold text-white/35 whitespace-nowrap">
+              Software Engineer & Developer
+            </span>
           </div>
+          {/* Bottom fade out gradient for mobile */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#000428] via-transparent to-transparent lg:hidden"></div>
         </div>
 
-        {/* RIGHT: Scrollable content column (Hero + About merged) */}
-        <div className="flex-grow">
-
-          {/* === HERO content === */}
-          <section id="home-content" className="min-h-screen flex flex-col justify-center px-6 sm:px-12 lg:px-16 pt-24 pb-16 lg:pt-0">
-            {/* Mobile photo */}
-            <div className="lg:hidden w-full h-64 relative mb-8 rounded-2xl overflow-hidden">
-              <img src={photoUrl} alt={fullName} className="absolute inset-0 w-full h-full object-cover" />
-              <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#000428] to-transparent" />
+        {/* Right Column: Content on desktop */}
+        <div className="flex-grow flex flex-col justify-center px-6 sm:px-12 lg:px-20 py-16 lg:py-24 relative z-20">
+          
+          {/* Statistics Grid */}
+          <div className="grid grid-cols-3 gap-6 max-w-lg mb-12 animate-fade-in-up" style={{ animationDuration: '0.6s', animationFillMode: 'both' }}>
+            <div>
+              <div className="text-3xl md:text-4xl font-black text-white">+3</div>
+              <div className="text-[9px] uppercase tracking-[0.2em] text-[#38BDF8] mt-1 font-semibold">Years Exp</div>
             </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-6 max-w-md mb-10">
-              <div>
-                <div className="text-3xl md:text-4xl font-black text-white">+3</div>
-                <div className="text-[9px] uppercase tracking-[0.2em] text-[#38BDF8] mt-1 font-semibold">Years Exp</div>
-              </div>
-              <div>
-                <div className="text-3xl md:text-4xl font-black text-white">+{projects.length}</div>
-                <div className="text-[9px] uppercase tracking-[0.2em] text-[#A855F7] mt-1 font-semibold">Projects</div>
-              </div>
-              <div>
-                <div className="text-3xl md:text-4xl font-black text-white">100%</div>
-                <div className="text-[9px] uppercase tracking-[0.2em] text-[#22D3EE] mt-1 font-semibold">Dedication</div>
-              </div>
+            <div>
+              <div className="text-3xl md:text-4xl font-black text-white">+{projects.length}</div>
+              <div className="text-[9px] uppercase tracking-[0.2em] text-[#A855F7] mt-1 font-semibold">Projects</div>
             </div>
+            <div>
+              <div className="text-3xl md:text-4xl font-black text-white">100%</div>
+              <div className="text-[9px] uppercase tracking-[0.2em] text-[#22D3EE] mt-1 font-semibold">Dedication</div>
+            </div>
+          </div>
 
+          <div className="animate-fade-in-up" style={{ animationDuration: '0.8s', animationFillMode: 'both' }}>
             <h1 className="text-6xl md:text-8xl font-black mb-4 tracking-tight leading-none text-white/95">
               Hello
             </h1>
 
-            <div className="flex items-center gap-3 mb-5">
-              <span className="w-8 h-[2px] bg-[#A855F7]" />
+            <div className="flex items-center gap-3 mb-6">
+              <span className="w-8 h-[2px] bg-[#A855F7]"></span>
               <p className="text-lg md:text-xl font-semibold text-[#67E8F9] tracking-wider uppercase">
                 — It's {fullName}
               </p>
             </div>
 
-            <p className="text-xl md:text-2xl font-bold bg-gradient-to-r from-white to-white/60 text-transparent bg-clip-text mb-5">
+            <p className="text-xl md:text-2xl font-bold bg-gradient-to-r from-white to-white/60 text-transparent bg-clip-text mb-6">
               {headline || "Software Engineer & Developer"}
             </p>
 
-            <p className="text-base text-white/60 max-w-xl mb-10 leading-relaxed font-light">
+            <p className="text-base md:text-lg text-white/60 max-w-2xl mb-10 leading-relaxed font-light">
               {bio}
             </p>
 
@@ -485,61 +477,108 @@ export default function HomePage() {
                 </>
               )}
             </div>
-          </section>
-
-          {/* === ABOUT content === */}
-          <section id="about" className="px-6 sm:px-12 lg:px-16 py-24">
-            <div className="text-xs tracking-[0.3em] font-bold text-[#A855F7] uppercase mb-4">
-              — ABOUT ME
-            </div>
-            <h2 className="text-3xl md:text-5xl font-black bg-gradient-to-r from-white via-white to-white/50 text-transparent bg-clip-text leading-tight tracking-tight mb-4">
-              Designing robust code<br />that performs in production
-            </h2>
-
-            <h3 className="text-lg md:text-xl font-semibold text-[#67E8F9] tracking-wide mb-6">
-              {fullName} | Full-Stack Software Engineer
-            </h3>
-
-            <div className="text-base text-white/60 leading-relaxed font-light space-y-4 mb-8 max-w-xl">
-              <p>
-                I'm Shafiur Rahman, a software engineering student specializing in Full-Stack Web Development. I focus on creating high-performance, eye-catching, and production-ready applications that solve real-world problems.
-              </p>
-              <p>
-                With experience spanning client-side design patterns, server pre-rendering, and PostgreSQL database logic, I bridge the gap between creative visual layouts and efficient technical execution.
-              </p>
-            </div>
-
-            {/* Metrics */}
-            <div className="grid grid-cols-3 gap-4 mb-8 max-w-lg">
-              <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                <div className="text-[10px] uppercase tracking-widest text-[#A855F7] font-bold">Expertise</div>
-                <div className="text-sm font-bold text-white mt-1">Web & APIs</div>
-              </div>
-              <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                <div className="text-[10px] uppercase tracking-widest text-[#3B82F6] font-bold">Experience</div>
-                <div className="text-sm font-bold text-white mt-1">3+ Years</div>
-              </div>
-              <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                <div className="text-[10px] uppercase tracking-widest text-[#22D3EE] font-bold">Projects</div>
-                <div className="text-sm font-bold text-white mt-1">+{projects.length} Done</div>
-              </div>
-            </div>
-
-            {/* Tech pills */}
-            <div className="flex flex-wrap gap-2">
-              {["React", "Next.js", "React Router v7", "Node.js", "PostgreSQL", "Tailwind CSS", "Vite"].map((tech) => (
-                <span
-                  key={tech}
-                  className="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-white/70 bg-white/5 border border-white/10 rounded-full hover:text-white hover:border-[#A855F7]/50 hover:bg-[#A855F7]/10 transition-colors cursor-default"
-                >
-                  {tech}
-                </span>
-              ))}
-            </div>
-          </section>
-
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* 2. About Section */}
+      <section id="about" className="py-32 relative z-10 w-full">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            
+            {/* Left side: Photo Card */}
+            <div className="lg:col-span-5 flex justify-center">
+              <div className="relative group w-full max-w-sm">
+                {/* Glowing outline */}
+                <div className="absolute -inset-1.5 bg-gradient-to-r from-[#A855F7] to-[#3B82F6] rounded-3xl blur opacity-20 group-hover:opacity-35 transition duration-1000"></div>
+                
+                {/* Image Container Card */}
+                <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-[#081327]/90 p-3 shadow-2xl">
+                  <div className="aspect-[4/5] rounded-2xl overflow-hidden relative">
+                    <img
+                      src={photoUrl}
+                      alt={fullName}
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                    
+                    {/* Floating Info Overlay */}
+                    <div className="absolute bottom-4 left-4 right-4 bg-[#000428]/85 backdrop-blur-md border border-white/10 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-xl">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] animate-pulse"></span>
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-white">
+                          {contactLocation}
+                        </span>
+                      </div>
+                      <span className="text-[9px] text-[#22D3EE] uppercase tracking-widest font-semibold">
+                        Available for work
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right side: Detailed Description & Metrics */}
+            <div className="lg:col-span-7 text-left space-y-6">
+              <div>
+                <div className="text-xs tracking-[0.3em] font-bold text-[#A855F7] uppercase mb-3">
+                  — ABOUT ME
+                </div>
+                <h2 className="text-3xl md:text-5xl font-black bg-gradient-to-r from-white via-white to-white/50 text-transparent bg-clip-text leading-tight tracking-tight">
+                  Designing robust code that performs in production
+                </h2>
+              </div>
+
+              <h3 className="text-lg md:text-xl font-semibold text-[#67E8F9] tracking-wide">
+                {fullName} | Full-Stack Software Engineer
+              </h3>
+
+              <div className="text-base md:text-lg text-white/60 leading-relaxed font-light space-y-4">
+                <p>
+                  I'm Shafiur Rahman, a software engineering student specializing in Full-Stack Web Development. I focus on creating high-performance, eye-catching, and production-ready applications that solve real-world problems.
+                </p>
+                <p>
+                  With experience spanning client-side design patterns, server pre-rendering, and PostgreSQL database logic, I bridge the gap between creative visual layouts and efficient technical execution.
+                </p>
+              </div>
+
+              {/* Mini Metrics Row */}
+              <div className="grid grid-cols-3 gap-4 pt-4">
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 shadow-lg">
+                  <div className="text-[10px] uppercase tracking-widest text-[#A855F7] font-bold">Expertise</div>
+                  <div className="text-sm font-bold text-white mt-1">Web & APIs</div>
+                </div>
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 shadow-lg">
+                  <div className="text-[10px] uppercase tracking-widest text-[#3B82F6] font-bold">Experience</div>
+                  <div className="text-sm font-bold text-white mt-1">3+ Years</div>
+                </div>
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 shadow-lg">
+                  <div className="text-[10px] uppercase tracking-widest text-[#22D3EE] font-bold">Projects</div>
+                  <div className="text-sm font-bold text-white mt-1">+{projects.length} Completed</div>
+                </div>
+              </div>
+
+              {/* Technologies Pills */}
+              <div className="pt-6 space-y-3">
+                <div className="text-xs font-semibold text-white/40 uppercase tracking-widest">
+                  Key Technologies:
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {["React", "Next.js", "React Router v7", "Node.js", "PostgreSQL", "Vercel CDN", "Tailwind CSS", "Vite"].map((tech) => (
+                    <span
+                      key={tech}
+                      className="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-white/70 bg-white/5 border border-white/10 rounded-full hover:text-white hover:border-[#A855F7]/50 hover:bg-[#A855F7]/10 transition-colors cursor-default"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
 
       {/* 3. Services / Arsenal Section */}
       <section id="services" className="py-32 relative z-10 w-full">
