@@ -1,10 +1,12 @@
 
 import { useState, useEffect } from "react";
 import { useLoaderData } from "react-router";
-import { getPortfolioData } from "./page.queries.js";
-
 export async function loader() {
-  return getPortfolioData();
+  console.log("--- RUNNING LOADER ---");
+  const { getPortfolioData } = await import("./page.queries.js");
+  const data = await getPortfolioData();
+  console.log("Loader Data:", data);
+  return data;
 }
 import {
   Mail,
@@ -84,6 +86,7 @@ function toScore(value, fallback = 80) {
 
 export default function HomePage() {
   const initialData = useLoaderData();
+  console.log("HomePage render initialData:", initialData);
 
   const [skills, setSkills] = useState(initialData?.skills || []);
   const [projects, setProjects] = useState(initialData?.projects || []);

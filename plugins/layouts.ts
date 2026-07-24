@@ -136,6 +136,18 @@ export function layoutWrapperPlugin(userOpts: HierarchicalLayoutOptions = {}): P
     // import the actual page with a flag to skip re-wrapping
     imports.push(`import Page from ${JSON.stringify(pagePath + NO_LAYOUT_QUERY)};`);
 
+    const pageCode = fs.readFileSync(pagePath, 'utf-8');
+    const exportsToForward: string[] = [];
+    if (/\bexport\s+(async\s+)?function\s+loader\b|\bexport\s+const\s+loader\b|\bexport\s+\{\s*loader\b/.test(pageCode)) {
+      exportsToForward.push('loader');
+    }
+    if (/\bexport\s+(async\s+)?function\s+action\b|\bexport\s+const\s+action\b|\bexport\s+\{\s*action\b/.test(pageCode)) {
+      exportsToForward.push('action');
+    }
+    if (exportsToForward.length > 0) {
+      imports.push(`export { ${exportsToForward.join(', ')} } from ${JSON.stringify(pagePath + NO_LAYOUT_QUERY)};`);
+    }
+
     if (routeParams.length > 0) {
       imports.push(
         `import { useParams${hasSpreadParams ? ', useLocation' : ''} } from 'react-router-dom';`
