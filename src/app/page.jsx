@@ -391,16 +391,12 @@ export default function HomePage() {
       <div className="relative z-10 lg:flex lg:items-start" id="home">
 
         {/* LEFT: Sticky photo column — stays fixed as right side scrolls */}
-        <div className="hidden lg:block lg:w-[42%] flex-shrink-0 sticky top-0 h-screen overflow-hidden">
+        <div className="hidden lg:block lg:w-[42%] flex-shrink-0 sticky top-0 h-screen overflow-hidden border-r border-white/10">
           <img
             src={photoUrl}
             alt={fullName}
             className="absolute inset-0 w-full h-full object-cover object-top"
           />
-          {/* Bottom fade */}
-          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#000428] to-transparent pointer-events-none" />
-          {/* Right edge fade */}
-          <div className="absolute top-0 right-0 bottom-0 w-24 bg-gradient-to-l from-[#000428] to-transparent pointer-events-none" />
 
           {/* Name badge at bottom */}
           <div className="absolute bottom-10 left-8 right-8">
