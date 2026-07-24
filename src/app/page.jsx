@@ -8,6 +8,11 @@ export async function loader() {
   console.log("Loader Data:", data);
   return data;
 }
+export function headers() {
+  return {
+    "Cache-Control": "public, max-age=0, s-maxage=60, stale-while-revalidate=600",
+  };
+}
 import {
   Mail,
   Github,
@@ -103,7 +108,6 @@ export default function HomePage() {
     }
   }, [initialData]);
   const [scrolled, setScrolled] = useState(false);
-  const [visibleSections, setVisibleSections] = useState({});
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
   const [contactSending, setContactSending] = useState(false);
   const [contactFeedback, setContactFeedback] = useState("");
@@ -113,19 +117,6 @@ export default function HomePage() {
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
-      
-      const sections = ['home', 'services', 'portfolio', 'achievements', 'certificates', 'contact', 'about'];
-      const newVisible = {};
-      sections.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top < window.innerHeight * 0.85) {
-            newVisible[id] = true;
-          }
-        }
-      });
-      setVisibleSections(prev => ({ ...prev, ...newVisible }));
     };
     
     window.addEventListener("scroll", handleScroll);
@@ -147,6 +138,16 @@ export default function HomePage() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [zoomImage]);
+
+  const handleNavClick = (event, href) => {
+    event.preventDefault();
+    const id = href.replace("#", "");
+    const element = document.getElementById(id);
+    if (element) {
+      window.history.pushState(null, null, href);
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   const photoUrl =
     profile.photo_url ||
@@ -375,6 +376,7 @@ export default function HomePage() {
               <a
                 key={item.label}
                 href={item.href}
+                onClick={(event) => handleNavClick(event, item.href)}
                 className="text-[12px] tracking-[0.2em] text-white/50 font-medium transition-colors hover:text-white relative group uppercase"
               >
                 {item.label}
@@ -423,12 +425,14 @@ export default function HomePage() {
           <div className="flex flex-wrap justify-center items-center gap-3 md:gap-4">
             <a
               href="#contact"
+              onClick={(event) => handleNavClick(event, "#contact")}
               className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#A855F7] to-[#38BDF8] text-white rounded-xl font-semibold transition-all hover:scale-105 active:scale-95"
             >
               Get In Touch
             </a>
             <a
               href="#portfolio"
+              onClick={(event) => handleNavClick(event, "#portfolio")}
               className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 border border-white/20 rounded-xl font-semibold hover:bg-white/20 transition-colors"
             >
               View My Work
@@ -462,7 +466,7 @@ export default function HomePage() {
       </section>
 
       {/* 2. About Section */}
-      <section id="about" className={`py-32 relative z-10 w-full transition-all duration-1000 transform ${visibleSections['about'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+      <section id="about" className="py-32 relative z-10 w-full">
         <div className="max-w-6xl mx-auto px-6">
           <div className="mb-16">
             <div className="text-sm tracking-[0.3em] font-medium text-[#A855F7] uppercase mb-4">— ABOUT ME</div>
@@ -481,7 +485,7 @@ export default function HomePage() {
               </p>
               
               <div className="pt-6">
-                <a href="#contact" className="inline-flex items-center gap-2 text-white font-semibold hover:text-[#A855F7] transition-colors border-b border-white/20 hover:border-[#A855F7] pb-1">
+                <a href="#contact" onClick={(event) => handleNavClick(event, "#contact")} className="inline-flex items-center gap-2 text-white font-semibold hover:text-[#A855F7] transition-colors border-b border-white/20 hover:border-[#A855F7] pb-1">
                   Let's Discuss Concept <ArrowRight size={16} />
                 </a>
               </div>
@@ -504,7 +508,7 @@ export default function HomePage() {
       </section>
 
       {/* 3. Services / Arsenal Section */}
-      <section id="services" className={`py-32 relative z-10 w-full transition-all duration-1000 transform ${visibleSections['services'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+      <section id="services" className="py-32 relative z-10 w-full">
         <div className="max-w-6xl mx-auto px-6">
           <div className="mb-12 text-center">
              <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
@@ -554,7 +558,7 @@ export default function HomePage() {
       </section>
 
       {/* 4. Portfolio Section */}
-      <section id="portfolio" className={`py-32 relative z-10 w-full transition-all duration-1000 transform ${visibleSections['portfolio'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+      <section id="portfolio" className="py-32 relative z-10 w-full">
         <div className="max-w-6xl mx-auto px-6">
           <div className="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6">
              <div>
@@ -661,7 +665,7 @@ export default function HomePage() {
       </section>
 
       {/* 5. Professional Journey / Experience */}
-      <section id="achievements" className={`py-32 relative z-10 w-full transition-all duration-1000 transform ${visibleSections['achievements'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+      <section id="achievements" className="py-32 relative z-10 w-full">
           <div className="max-w-4xl mx-auto px-6">
             <div className="mb-16">
                <div className="text-sm tracking-[0.3em] font-medium text-[#3B82F6] uppercase mb-4">— ACHIEVEMENTS</div>
@@ -763,7 +767,7 @@ export default function HomePage() {
       </section>
 
       {/* 6. Certificates Section */}
-      <section id="certificates" className={`py-32 relative z-10 w-full transition-all duration-1000 transform ${visibleSections['certificates'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+      <section id="certificates" className="py-32 relative z-10 w-full">
         <div className="max-w-6xl mx-auto px-6">
           <div className="mb-12 text-center">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
@@ -813,7 +817,7 @@ export default function HomePage() {
       </section>
 
       {/* 7. Contact Section */}
-      <section id="contact" className={`py-32 relative z-10 w-full overflow-hidden transition-all duration-1000 transform ${visibleSections['contact'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+      <section id="contact" className="py-32 relative z-10 w-full overflow-hidden">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-14">
             <div className="text-sm tracking-[0.3em] font-medium text-[#A855F7] uppercase mb-4">— CONTACT</div>
