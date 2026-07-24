@@ -367,8 +367,8 @@ export default function HomePage() {
             : "bg-transparent py-6"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 lg:pl-[44%] flex items-center justify-between">
-          <div className="text-2xl font-bold bg-gradient-to-r from-[#A855F7] to-[#38BDF8] text-transparent bg-clip-text transition-colors cursor-pointer tracking-tight">
+        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+          <div className="lg:hidden text-2xl font-bold bg-gradient-to-r from-[#A855F7] to-[#38BDF8] text-transparent bg-clip-text transition-colors cursor-pointer tracking-tight">
             {fullName}
           </div>
           <div className="hidden md:flex items-center gap-10">
