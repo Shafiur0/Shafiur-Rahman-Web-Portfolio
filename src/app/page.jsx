@@ -152,6 +152,7 @@ export default function HomePage() {
   const photoUrl =
     profile.photo_url ||
     "https://ucarecdn.com/f7c7966c-96e4-46a8-80c8-96c835ab609c/-/format/auto/";
+  const aboutPhotoUrl = profile.about_photo_url || photoUrl;
   const achievementSlidePhoto = toMediaUrl(
     profile.achievement_photo_url ||
       profile.achievement_slide_photo_url ||
@@ -511,7 +512,7 @@ export default function HomePage() {
                 <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-[#081327]/90 p-3 shadow-2xl">
                   <div className="aspect-[4/5] rounded-2xl overflow-hidden relative">
                     <img
-                      src={photoUrl}
+                      src={aboutPhotoUrl}
                       alt={fullName}
                       className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                     />

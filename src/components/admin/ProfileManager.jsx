@@ -19,6 +19,7 @@ const DEFAULT_PROFILE = {
   x_url: "",
   bio: "",
   photo_url: "",
+  about_photo_url: "",
   achievement_photo_url: "",
   cv_url: "",
 };
@@ -95,7 +96,7 @@ export default function ProfileManager({ onDataChange }) {
 
     const { url, error } = await upload({ file });
     if (error) {
-      const isImageField = field === "photo_url" || field === "achievement_photo_url";
+      const isImageField = field === "photo_url" || field === "about_photo_url" || field === "achievement_photo_url";
       if (!isImageField) {
         setMessage("Failed to upload file");
         return;
@@ -328,14 +329,15 @@ export default function ProfileManager({ onDataChange }) {
         placeholder="About/Bio"
       />
 
-      <div className="grid md:grid-cols-2 gap-6 mb-6">
+      <div className="grid md:grid-cols-3 gap-6 mb-6">
         <div className="rounded-xl border border-cyan-500/20 p-4 bg-[#0f1f3a]">
-          <p className="text-sm text-slate-300 mb-3">Profile Photo</p>
+          <p className="text-sm text-slate-300 mb-1">Profile Photo</p>
+          <p className="text-xs text-slate-500 mb-3">Used in the Hero section (left column)</p>
           {profile.photo_url && (
             <img
               src={profile.photo_url}
               alt="Profile"
-              className="w-32 h-32 object-cover rounded-lg border border-cyan-500/20 mb-3"
+              className="w-full h-32 object-cover rounded-lg border border-cyan-500/20 mb-3"
             />
           )}
           <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-500/20 border border-cyan-400/40 text-cyan-100 cursor-pointer hover:bg-cyan-500/30 transition-colors">
@@ -351,8 +353,32 @@ export default function ProfileManager({ onDataChange }) {
           </label>
         </div>
 
+        <div className="rounded-xl border border-purple-500/20 p-4 bg-[#0f1f3a]">
+          <p className="text-sm text-slate-300 mb-1">About Section Photo</p>
+          <p className="text-xs text-slate-500 mb-3">Shown in the About Me card (separate image)</p>
+          {profile.about_photo_url && (
+            <img
+              src={profile.about_photo_url}
+              alt="About"
+              className="w-full h-32 object-cover rounded-lg border border-purple-500/20 mb-3"
+            />
+          )}
+          <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-400/40 text-purple-100 cursor-pointer hover:bg-purple-500/30 transition-colors">
+            <Camera size={16} />
+            {uploading ? "Uploading..." : "Choose Photo"}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(event) => handleUpload("about_photo_url", event)}
+              className="hidden"
+              disabled={uploading}
+            />
+          </label>
+        </div>
+
         <div className="rounded-xl border border-cyan-500/20 p-4 bg-[#0f1f3a]">
-          <p className="text-sm text-slate-300 mb-3">Achievement Slide Photo</p>
+          <p className="text-sm text-slate-300 mb-1">Achievement Slide Photo</p>
+          <p className="text-xs text-slate-500 mb-3">Used in the achievements section slideshow</p>
           {profile.achievement_photo_url && (
             <img
               src={profile.achievement_photo_url}
