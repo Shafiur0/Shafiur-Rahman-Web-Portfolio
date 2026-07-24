@@ -474,11 +474,21 @@ export default function ProfileManager({ onDataChange }) {
       </div>
 
       <div className="rounded-xl border border-cyan-500/20 p-4 bg-[#0f1f3a] mb-6">
-        <p className="text-sm text-slate-300 mb-3">CV Upload</p>
+        <p className="text-sm text-slate-300 mb-2">CV Upload / Link</p>
+        <p className="text-xs text-slate-500 mb-4">Upload your CV file, or paste a link to your online CV (Google Drive, OneDrive, etc.) below.</p>
+
+        <input
+          type="text"
+          value={profile.cv_url || ""}
+          onChange={(event) => updateField("cv_url", event.target.value)}
+          className="w-full rounded-lg bg-[#12213e] border border-cyan-500/20 px-4 py-2.5 text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-cyan-400 mb-4"
+          placeholder="Paste CV link (e.g., https://drive.google.com/...)"
+        />
+
         <div className="flex flex-wrap items-center gap-3">
           <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-500/20 border border-cyan-400/40 text-cyan-100 cursor-pointer hover:bg-cyan-500/30 transition-colors">
             <Upload size={16} />
-            {uploading ? "Uploading..." : "Choose File"}
+            {uploading ? "Uploading..." : "Upload File"}
             <input
               type="file"
               accept=".pdf,.doc,.docx"
