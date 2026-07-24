@@ -401,7 +401,7 @@ export default function HomePage() {
           />
           {/* Vertical label inside the left column, overlaying the image near the right border */}
           <div className="absolute right-6 bottom-24 origin-bottom-right -rotate-90 select-none hidden lg:block z-20">
-            <span className="text-[10px] uppercase tracking-[0.4em] font-semibold text-white/35 whitespace-nowrap">
+            <span className="text-[11px] uppercase tracking-[0.4em] font-extrabold text-slate-800/70 whitespace-nowrap">
               Software Engineer & Developer
             </span>
           </div>
