@@ -262,8 +262,8 @@ function ProjectCard({ project, projectLink }) {
            </div>
          )}
 
-         {/* Overlay Content */}
-         <div className="absolute inset-0 z-20 flex flex-col justify-end p-8 bg-gradient-to-t from-[#000428] via-[#000428]/50 to-transparent translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+          {/* Overlay Content */}
+          <div className="absolute inset-0 z-20 flex flex-col justify-end p-8 bg-gradient-to-t from-[#000428]/80 to-transparent translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
             <div className="flex items-center gap-4">
                {project.project_url && (
                  <a
