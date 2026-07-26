@@ -1,6 +1,7 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLoaderData } from "react-router";
+import ScrollReveal, { useIntersectionObserver } from "../components/ScrollReveal";
 export async function loader() {
   console.log("--- RUNNING LOADER ---");
   const { getPortfolioData } = await import("./page.queries.js");
@@ -277,6 +278,25 @@ function ProjectCard({ project, projectLink }) {
             ))}
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function SkillBar({ skill }) {
+  const [ref, isVisible] = useIntersectionObserver({ threshold: 0.1, triggerOnce: true });
+
+  return (
+    <div ref={ref}>
+      <div className="flex items-center justify-between text-sm mb-1">
+        <span className="text-white/80">{skill.name}</span>
+        <span className="text-[#38BDF8] font-semibold">{skill.score}%</span>
+      </div>
+      <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-[#A855F7] to-[#22D3EE] transition-all duration-[1.5s] ease-out"
+          style={{ width: isVisible ? `${skill.score}%` : "0%" }}
+        />
       </div>
     </div>
   );
@@ -724,95 +744,99 @@ export default function HomePage() {
             
             {/* Left side: Photo Card */}
             <div className="lg:col-span-5 flex justify-center">
-              <div className="relative group w-full max-w-sm">
-                {/* Animated glowing border */}
-                <div className="absolute -inset-[3px] rounded-3xl bg-gradient-to-r from-[#A855F7] via-[#3B82F6] to-[#06B6D4] opacity-40 group-hover:opacity-70 blur-sm transition-all duration-700" style={{ animation: 'glow-pulse 3s ease-in-out infinite' }}></div>
-                <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-[#A855F7] via-[#3B82F6] to-[#06B6D4] opacity-60 group-hover:opacity-90 transition-all duration-700"></div>
-                
-                {/* Image Container Card */}
-                <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-[#081327]/90 p-3 shadow-2xl">
-                  <div className="aspect-[4/5] rounded-2xl overflow-hidden relative">
-                    <img
-                      src={aboutPhotoUrl}
-                      alt={fullName}
-                      onClick={() => openImageZoom(aboutPhotoUrl, "About Profile Photo")}
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 cursor-zoom-in"
-                      title="Click to enlarge"
-                    />
-                    
-                    {/* Floating Info Overlay */}
-                    <div className="absolute bottom-4 left-4 right-4 bg-[#000428]/85 backdrop-blur-md border border-white/10 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-xl">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] animate-pulse"></span>
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-white">
-                          {contactLocation}
+              <ScrollReveal animation="fade-in-left" className="w-full max-w-sm">
+                <div className="relative group w-full">
+                  {/* Animated glowing border */}
+                  <div className="absolute -inset-[3px] rounded-3xl bg-gradient-to-r from-[#A855F7] via-[#3B82F6] to-[#06B6D4] opacity-40 group-hover:opacity-70 blur-sm transition-all duration-700" style={{ animation: 'glow-pulse 3s ease-in-out infinite' }}></div>
+                  <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-[#A855F7] via-[#3B82F6] to-[#06B6D4] opacity-60 group-hover:opacity-90 transition-all duration-700"></div>
+                  
+                  {/* Image Container Card */}
+                  <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-[#081327]/90 p-3 shadow-2xl">
+                    <div className="aspect-[4/5] rounded-2xl overflow-hidden relative">
+                      <img
+                        src={aboutPhotoUrl}
+                        alt={fullName}
+                        onClick={() => openImageZoom(aboutPhotoUrl, "About Profile Photo")}
+                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 cursor-zoom-in"
+                        title="Click to enlarge"
+                      />
+                      
+                      {/* Floating Info Overlay */}
+                      <div className="absolute bottom-4 left-4 right-4 bg-[#000428]/85 backdrop-blur-md border border-white/10 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-xl">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] animate-pulse"></span>
+                          <span className="text-[11px] font-bold uppercase tracking-wider text-white">
+                            {contactLocation}
+                          </span>
+                        </div>
+                        <span className="text-[9px] text-[#22D3EE] uppercase tracking-widest font-semibold">
+                          Available for work
                         </span>
                       </div>
-                      <span className="text-[9px] text-[#22D3EE] uppercase tracking-widest font-semibold">
-                        Available for work
-                      </span>
                     </div>
                   </div>
                 </div>
-              </div>
+              </ScrollReveal>
             </div>
 
             {/* Right side: Detailed Description & Metrics */}
-            <div className="lg:col-span-7 text-left space-y-6">
-              <div>
-                <div className="text-xs tracking-[0.3em] font-bold text-[#A855F7] uppercase mb-3">
-                  — ABOUT ME
+            <div className="lg:col-span-7 text-left">
+              <ScrollReveal animation="fade-in-right" className="space-y-6">
+                <div>
+                  <div className="text-xs tracking-[0.3em] font-bold text-[#A855F7] uppercase mb-3">
+                    — ABOUT ME
+                  </div>
+                  <h2 className="text-3xl md:text-5xl font-black bg-gradient-to-r from-white via-white to-white/50 text-transparent bg-clip-text leading-tight tracking-tight">
+                    Designing robust code that performs in production
+                  </h2>
                 </div>
-                <h2 className="text-3xl md:text-5xl font-black bg-gradient-to-r from-white via-white to-white/50 text-transparent bg-clip-text leading-tight tracking-tight">
-                  Designing robust code that performs in production
-                </h2>
-              </div>
 
-              <h3 className="text-lg md:text-xl font-semibold text-[#67E8F9] tracking-wide">
-                {fullName} | Full-Stack Software Engineer
-              </h3>
+                <h3 className="text-lg md:text-xl font-semibold text-[#67E8F9] tracking-wide">
+                  {fullName} | Full-Stack Software Engineer
+                </h3>
 
-              <div className="text-base md:text-lg text-white/60 leading-relaxed font-light space-y-4">
-                <p>
-                  I'm Shafiur Rahman, a software engineering student specializing in Full-Stack Web Development. I focus on creating high-performance, eye-catching, and production-ready applications that solve real-world problems.
-                </p>
-                <p>
-                  With experience spanning client-side design patterns, server pre-rendering, and PostgreSQL database logic, I bridge the gap between creative visual layouts and efficient technical execution.
-                </p>
-              </div>
+                <div className="text-base md:text-lg text-white/60 leading-relaxed font-light space-y-4">
+                  <p>
+                    I'm Shafiur Rahman, a software engineering student specializing in Full-Stack Web Development. I focus on creating high-performance, eye-catching, and production-ready applications that solve real-world problems.
+                  </p>
+                  <p>
+                    With experience spanning client-side design patterns, server pre-rendering, and PostgreSQL database logic, I bridge the gap between creative visual layouts and efficient technical execution.
+                  </p>
+                </div>
 
-              {/* Mini Metrics Row */}
-              <div className="grid grid-cols-3 gap-4 pt-4">
-                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 shadow-lg">
-                  <div className="text-[10px] uppercase tracking-widest text-[#A855F7] font-bold">Expertise</div>
-                  <div className="text-sm font-bold text-white mt-1">Web & APIs</div>
+                {/* Mini Metrics Row */}
+                <div className="grid grid-cols-3 gap-4 pt-4">
+                  <div className="p-4 rounded-2xl bg-white/5 border border-white/5 shadow-lg">
+                    <div className="text-[10px] uppercase tracking-widest text-[#A855F7] font-bold">Expertise</div>
+                    <div className="text-sm font-bold text-white mt-1">Web & APIs</div>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-white/5 border border-white/5 shadow-lg">
+                    <div className="text-[10px] uppercase tracking-widest text-[#3B82F6] font-bold">Experience</div>
+                    <div className="text-sm font-bold text-white mt-1">3+ Years</div>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-white/5 border border-white/5 shadow-lg">
+                    <div className="text-[10px] uppercase tracking-widest text-[#22D3EE] font-bold">Projects</div>
+                    <div className="text-sm font-bold text-white mt-1">+{projects.length} Completed</div>
+                  </div>
                 </div>
-                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 shadow-lg">
-                  <div className="text-[10px] uppercase tracking-widest text-[#3B82F6] font-bold">Experience</div>
-                  <div className="text-sm font-bold text-white mt-1">3+ Years</div>
-                </div>
-                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 shadow-lg">
-                  <div className="text-[10px] uppercase tracking-widest text-[#22D3EE] font-bold">Projects</div>
-                  <div className="text-sm font-bold text-white mt-1">+{projects.length} Completed</div>
-                </div>
-              </div>
 
-              {/* Technologies Pills */}
-              <div className="pt-6 space-y-3">
-                <div className="text-xs font-semibold text-white/40 uppercase tracking-widest">
-                  Key Technologies:
+                {/* Technologies Pills */}
+                <div className="pt-6 space-y-3">
+                  <div className="text-xs font-semibold text-white/40 uppercase tracking-widest">
+                    Key Technologies:
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {["React", "Next.js", "React Router v7", "Node.js", "PostgreSQL", "Vercel CDN", "Tailwind CSS", "Vite"].map((tech) => (
+                      <span
+                        key={tech}
+                        className="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-white/70 bg-white/5 border border-white/10 rounded-full hover:text-white hover:border-[#A855F7]/50 hover:bg-[#A855F7]/10 transition-colors cursor-default"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {["React", "Next.js", "React Router v7", "Node.js", "PostgreSQL", "Vercel CDN", "Tailwind CSS", "Vite"].map((tech) => (
-                    <span
-                      key={tech}
-                      className="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-white/70 bg-white/5 border border-white/10 rounded-full hover:text-white hover:border-[#A855F7]/50 hover:bg-[#A855F7]/10 transition-colors cursor-default"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              </div>
+              </ScrollReveal>
             </div>
 
           </div>
@@ -822,47 +846,39 @@ export default function HomePage() {
       {/* 3. Services / Arsenal Section */}
       <section id="services" className="py-32 relative z-10 w-full">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="mb-12 text-center">
-             <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
-               Skills & Expertise
-             </h2>
-             <p className="text-white/50">Technologies and tools I use to bring ideas to life</p>
-          </div>
+          <ScrollReveal animation="fade-in-up">
+            <div className="mb-12 text-center">
+               <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
+                 Skills & Expertise
+               </h2>
+               <p className="text-white/50">Technologies and tools I use to bring ideas to life</p>
+            </div>
+          </ScrollReveal>
 
           {skillCategoryCards.length === 0 ? (
             <p className="text-white/40">No skills added yet.</p>
           ) : (
             <div className="grid md:grid-cols-2 gap-6">
-              {skillCategoryCards.map(({ category, skills }) => (
-                <div
-                  key={category}
-                  className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/[0.08] transition-colors"
-                >
-                  <h3 className="text-xl font-semibold text-white mb-4 tracking-wide">
-                    {category}
-                  </h3>
-                  <div className="space-y-4">
-                    {skills.map((skill) => (
-                      <div key={skill.id}>
-                        <div className="flex items-center justify-between text-sm mb-1">
-                          <span className="text-white/80">{skill.name}</span>
-                          <span className="text-[#38BDF8] font-semibold">{skill.score}%</span>
-                        </div>
-                        <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-gradient-to-r from-[#A855F7] to-[#22D3EE]"
-                            style={{ width: `${skill.score}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                    {skills.length === 0 && (
-                      <span className="text-sm text-white/40">
-                        No skills in this category yet.
-                      </span>
-                    )}
+              {skillCategoryCards.map(({ category, skills }, idx) => (
+                <ScrollReveal key={category} animation="fade-in-up" delay={`${(idx % 2) * 150}ms`}>
+                  <div
+                    className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/[0.08] transition-colors h-full"
+                  >
+                    <h3 className="text-xl font-semibold text-white mb-4 tracking-wide">
+                      {category}
+                    </h3>
+                    <div className="space-y-4">
+                      {skills.map((skill) => (
+                        <SkillBar key={skill.id} skill={skill} />
+                      ))}
+                      {skills.length === 0 && (
+                        <span className="text-sm text-white/40">
+                          No skills in this category yet.
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
+                </ScrollReveal>
               ))}
             </div>
           )}
@@ -872,20 +888,22 @@ export default function HomePage() {
       {/* 4. Portfolio Section */}
       <section id="portfolio" className="py-32 relative z-10 w-full">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6">
-             <div>
-                <div className="text-sm tracking-[0.3em] font-medium text-[#A855F7] uppercase mb-4">— PORTFOLIO</div>
-                <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-white/50 text-transparent bg-clip-text">
-                  Selected Works
-                </h2>
-             </div>
-             <a href="https://github.com/Shafiur0" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors">
-               Explore GitHub <ArrowRight size={16} />
-             </a>
-          </div>
+          <ScrollReveal animation="fade-in-up">
+            <div className="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6">
+               <div>
+                  <div className="text-sm tracking-[0.3em] font-medium text-[#A855F7] uppercase mb-4">— PORTFOLIO</div>
+                  <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-white/50 text-transparent bg-clip-text">
+                    Selected Works
+                  </h2>
+               </div>
+               <a href="https://github.com/Shafiur0" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors">
+                 Explore GitHub <ArrowRight size={16} />
+               </a>
+            </div>
+          </ScrollReveal>
 
           <div className="grid md:grid-cols-2 gap-8">
-              {projects.map((project) => {
+              {projects.map((project, idx) => {
                 const projectLink = toExternalUrl(
                   project.project_url ||
                     project.github_url ||
@@ -893,11 +911,12 @@ export default function HomePage() {
                 );
 
                 return (
-                  <ProjectCard
-                    key={project.id}
-                    project={project}
-                    projectLink={projectLink}
-                  />
+                  <ScrollReveal key={project.id} animation="fade-in-up" delay={`${(idx % 2) * 150}ms`}>
+                    <ProjectCard
+                      project={project}
+                      projectLink={projectLink}
+                    />
+                  </ScrollReveal>
                 );
               })}
             </div>
@@ -907,70 +926,74 @@ export default function HomePage() {
       {/* 5. Professional Journey / Experience */}
       <section id="achievements" className="py-32 relative z-10 w-full">
           <div className="max-w-4xl mx-auto px-6">
-            <div className="mb-16">
-               <div className="text-sm tracking-[0.3em] font-medium text-[#3B82F6] uppercase mb-4">— ACHIEVEMENTS</div>
-               <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-white/50 text-transparent bg-clip-text">
-                 Achievements & Milestones
-               </h2>
-            </div>
+            <ScrollReveal animation="fade-in-up">
+              <div className="mb-16">
+                 <div className="text-sm tracking-[0.3em] font-medium text-[#3B82F6] uppercase mb-4">— ACHIEVEMENTS</div>
+                 <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-white/50 text-transparent bg-clip-text">
+                   Achievements & Milestones
+                 </h2>
+              </div>
+            </ScrollReveal>
 
             {achievementSlidePhotos.length > 0 && (
-              <div className="mb-12 rounded-2xl overflow-hidden border border-white/15 bg-white/5 relative group/slider">
-                {/* Image display */}
-                <button
-                  type="button"
-                  onClick={() => openImageZoom(achievementSlidePhotos[activeSlideIndex], "Achievement slide")}
-                  className="w-full cursor-zoom-in block relative h-52 md:h-72 bg-black/40 overflow-hidden"
-                  aria-label="Open active achievement slide photo"
-                >
-                  <img
-                    src={achievementSlidePhotos[activeSlideIndex]}
-                    alt={`Achievement slide ${activeSlideIndex + 1}`}
-                    className="w-full h-full object-cover transition-transform duration-500"
-                    key={activeSlideIndex}
-                    style={{ animation: "fadeInUp 0.5s ease-out" }}
-                  />
-                </button>
+              <ScrollReveal animation="fade-in-up">
+                <div className="mb-12 rounded-2xl overflow-hidden border border-white/15 bg-white/5 relative group/slider">
+                  {/* Image display */}
+                  <button
+                    type="button"
+                    onClick={() => openImageZoom(achievementSlidePhotos[activeSlideIndex], "Achievement slide")}
+                    className="w-full cursor-zoom-in block relative h-52 md:h-72 bg-black/40 overflow-hidden"
+                    aria-label="Open active achievement slide photo"
+                  >
+                    <img
+                      src={achievementSlidePhotos[activeSlideIndex]}
+                      alt={`Achievement slide ${activeSlideIndex + 1}`}
+                      className="w-full h-full object-cover transition-transform duration-500"
+                      key={activeSlideIndex}
+                      style={{ animation: "fadeInUp 0.5s ease-out" }}
+                    />
+                  </button>
 
-                {/* Left/Right manual slide buttons */}
-                {achievementSlidePhotos.length > 1 && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => setActiveSlideIndex((prev) => (prev - 1 + achievementSlidePhotos.length) % achievementSlidePhotos.length)}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#000428]/60 backdrop-blur-md border border-white/10 text-white flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity hover:bg-[#000428]/80 hover:scale-105"
-                      aria-label="Previous slide"
-                    >
-                      ❮
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setActiveSlideIndex((prev) => (prev + 1) % achievementSlidePhotos.length)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#000428]/60 backdrop-blur-md border border-white/10 text-white flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity hover:bg-[#000428]/80 hover:scale-105"
-                      aria-label="Next slide"
-                    >
-                      ❯
-                    </button>
-                  </>
-                )}
-
-                {/* Dots indicator at the bottom */}
-                {achievementSlidePhotos.length > 1 && (
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/5">
-                    {achievementSlidePhotos.map((_, idx) => (
+                  {/* Left/Right manual slide buttons */}
+                  {achievementSlidePhotos.length > 1 && (
+                    <>
                       <button
-                        key={idx}
                         type="button"
-                        onClick={() => setActiveSlideIndex(idx)}
-                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                          idx === activeSlideIndex ? "bg-[#3B82F6] w-4" : "bg-white/40 hover:bg-white/60"
-                        }`}
-                        aria-label={`Go to slide ${idx + 1}`}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
+                        onClick={() => setActiveSlideIndex((prev) => (prev - 1 + achievementSlidePhotos.length) % achievementSlidePhotos.length)}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#000428]/60 backdrop-blur-md border border-white/10 text-white flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity hover:bg-[#000428]/80 hover:scale-105"
+                        aria-label="Previous slide"
+                      >
+                        ❮
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveSlideIndex((prev) => (prev + 1) % achievementSlidePhotos.length)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#000428]/60 backdrop-blur-md border border-white/10 text-white flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity hover:bg-[#000428]/80 hover:scale-105"
+                        aria-label="Next slide"
+                      >
+                        ❯
+                      </button>
+                    </>
+                  )}
+
+                  {/* Dots indicator at the bottom */}
+                  {achievementSlidePhotos.length > 1 && (
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/5">
+                      {achievementSlidePhotos.map((_, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setActiveSlideIndex(idx)}
+                          className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                            idx === activeSlideIndex ? "bg-[#3B82F6] w-4" : "bg-white/40 hover:bg-white/60"
+                          }`}
+                          aria-label={`Go to slide ${idx + 1}`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </ScrollReveal>
             )}
 
             {timelineAchievements.length === 0 ? (
@@ -979,7 +1002,7 @@ export default function HomePage() {
               </div>
             ) : (
               <div className="relative border-l-2 border-[#3B82F6]/30 ml-4 md:ml-6 space-y-16">
-                {timelineAchievements.map((achievement) => {
+                {timelineAchievements.map((achievement, idx) => {
                   const achievementLink = toExternalUrl(
                     achievement.link_url ||
                       achievement.url ||
@@ -999,49 +1022,50 @@ export default function HomePage() {
                   const achievementBody = descriptionLines.join(" ");
 
                   return (
-                  <div
-                    key={achievement.id}
-                    className={`relative pl-10 md:pl-16 group ${achievementLink ? "cursor-pointer" : ""}`}
-                    onClick={() => {
-                      if (achievementLink) {
-                        window.open(achievementLink, "_blank", "noopener,noreferrer");
-                      }
-                    }}
-                    onKeyDown={(event) => {
-                      if (!achievementLink) return;
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        window.open(achievementLink, "_blank", "noopener,noreferrer");
-                      }
-                    }}
-                    role={achievementLink ? "link" : undefined}
-                    tabIndex={achievementLink ? 0 : undefined}
-                  >
-                    {/* Timeline Dot */}
-                    <div className="absolute -left-[11px] top-1.5 w-5 h-5 rounded-full bg-[#000428] border-4 border-[#A855F7] group-hover:scale-125 transition-transform z-10"></div>
+                  <ScrollReveal key={achievement.id} animation="fade-in-left" delay={`${(idx % 3) * 150}ms`}>
+                    <div
+                      className={`relative pl-10 md:pl-16 group ${achievementLink ? "cursor-pointer" : ""}`}
+                      onClick={() => {
+                        if (achievementLink) {
+                          window.open(achievementLink, "_blank", "noopener,noreferrer");
+                        }
+                      }}
+                      onKeyDown={(event) => {
+                        if (!achievementLink) return;
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          window.open(achievementLink, "_blank", "noopener,noreferrer");
+                        }
+                      }}
+                      role={achievementLink ? "link" : undefined}
+                      tabIndex={achievementLink ? 0 : undefined}
+                    >
+                      {/* Timeline Dot */}
+                      <div className="absolute -left-[11px] top-1.5 w-5 h-5 rounded-full bg-[#000428] border-4 border-[#A855F7] group-hover:scale-125 transition-transform z-10"></div>
 
-                    <div className="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-6 mb-3">
-                      <h3 className="text-2xl font-bold text-white">{achievement.title}</h3>
-                      {achievement.date && (
-                        <span className="text-xs uppercase tracking-widest text-[#3B82F6] font-semibold">
-                          {achievement.date}
-                        </span>
-                      )}
-                      {awardText && (
-                        <span className="text-[10px] uppercase tracking-widest text-[#A855F7] font-semibold border border-[#A855F7]/30 bg-[#A855F7]/10 px-2 py-1 rounded-full">
-                          {awardText}
-                        </span>
+                      <div className="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-6 mb-3">
+                        <h3 className="text-2xl font-bold text-white">{achievement.title}</h3>
+                        {achievement.date && (
+                          <span className="text-xs uppercase tracking-widest text-[#3B82F6] font-semibold">
+                            {achievement.date}
+                          </span>
+                        )}
+                        {awardText && (
+                          <span className="text-[10px] uppercase tracking-widest text-[#A855F7] font-semibold border border-[#A855F7]/30 bg-[#A855F7]/10 px-2 py-1 rounded-full">
+                            {awardText}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-white/50 leading-relaxed font-light text-lg">
+                        {achievementBody}
+                      </p>
+                      {achievementLink && (
+                        <p className="text-[#3B82F6] text-sm mt-3 uppercase tracking-widest">
+                          Open Link
+                        </p>
                       )}
                     </div>
-                    <p className="text-white/50 leading-relaxed font-light text-lg">
-                      {achievementBody}
-                    </p>
-                    {achievementLink && (
-                      <p className="text-[#3B82F6] text-sm mt-3 uppercase tracking-widest">
-                        Open Link
-                      </p>
-                    )}
-                  </div>
+                  </ScrollReveal>
                 )})}
               </div>
             )}
@@ -1051,46 +1075,51 @@ export default function HomePage() {
       {/* 6. Certificates Section */}
       <section id="certificates" className="py-32 relative z-10 w-full">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="mb-12 text-center">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
-              Certificates
-            </h2>
-            <p className="text-white/50">My e-certificates and verified certificates added from the admin panel</p>
-          </div>
+          <ScrollReveal animation="fade-in-up">
+            <div className="mb-12 text-center">
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
+                Certificates
+              </h2>
+              <p className="text-white/50">My e-certificates and verified certificates added from the admin panel</p>
+            </div>
+          </ScrollReveal>
 
           {certificateItems.length === 0 ? (
             <p className="text-white/50">No certificates added yet.</p>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {certificateItems.map((certificate) => {
+              {certificateItems.map((certificate, idx) => {
                 const cardClassName =
-                  "block bg-white/5 border border-white/10 rounded-2xl p-6 transition-colors " +
+                  "block bg-white/5 border border-white/10 rounded-2xl p-6 transition-colors h-full " +
                   (certificate.href
                     ? "hover:border-[#A855F7]/50 hover:bg-white/10"
                     : "opacity-95");
 
-                if (certificate.href) {
-                  return (
-                    <a
-                      key={certificate.id}
-                      href={certificate.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cardClassName}
-                    >
-                      <h3 className="text-xl font-bold text-white mb-2">{certificate.title}</h3>
-                      <p className="text-sm uppercase tracking-widest text-[#3B82F6] mb-3">{certificate.issuer}</p>
-                      <p className="text-white/60 text-sm line-clamp-3">{certificate.description || "Open credential"}</p>
-                    </a>
-                  );
-                }
-
                 return (
-                  <div key={certificate.id} className={cardClassName}>
-                    <h3 className="text-xl font-bold text-white mb-2">{certificate.title}</h3>
-                    <p className="text-sm uppercase tracking-widest text-[#3B82F6] mb-3">{certificate.issuer}</p>
-                    <p className="text-white/60 text-sm line-clamp-3">{certificate.description || "Certificate added from admin panel"}</p>
-                  </div>
+                  <ScrollReveal
+                    key={certificate.id}
+                    animation="fade-in-up"
+                    delay={`${(idx % 3) * 100}ms`}
+                  >
+                    {certificate.href ? (
+                      <a
+                        href={certificate.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={cardClassName}
+                      >
+                        <h3 className="text-xl font-bold text-white mb-2">{certificate.title}</h3>
+                        <p className="text-sm uppercase tracking-widest text-[#3B82F6] mb-3">{certificate.issuer}</p>
+                        <p className="text-white/60 text-sm line-clamp-3">{certificate.description || "Open credential"}</p>
+                      </a>
+                    ) : (
+                      <div className={cardClassName}>
+                        <h3 className="text-xl font-bold text-white mb-2">{certificate.title}</h3>
+                        <p className="text-sm uppercase tracking-widest text-[#3B82F6] mb-3">{certificate.issuer}</p>
+                        <p className="text-white/60 text-sm line-clamp-3">{certificate.description || "Certificate added from admin panel"}</p>
+                      </div>
+                    )}
+                  </ScrollReveal>
                 );
               })}
             </div>
@@ -1101,116 +1130,122 @@ export default function HomePage() {
       {/* 7. Contact Section */}
       <section id="contact" className="py-32 relative z-10 w-full overflow-hidden">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-14">
-            <div className="text-sm tracking-[0.3em] font-medium text-[#A855F7] uppercase mb-4">— CONTACT</div>
-            <h2 className="text-5xl md:text-6xl font-black mb-4 leading-tight">Let's Work Together</h2>
-            <p className="text-white/50 text-lg">Have a project in mind? I'd love to hear from you</p>
-          </div>
+          <ScrollReveal animation="fade-in-up">
+            <div className="text-center mb-14">
+              <div className="text-sm tracking-[0.3em] font-medium text-[#A855F7] uppercase mb-4">— CONTACT</div>
+              <h2 className="text-5xl md:text-6xl font-black mb-4 leading-tight">Let's Work Together</h2>
+              <p className="text-white/50 text-lg">Have a project in mind? I'd love to hear from you</p>
+            </div>
+          </ScrollReveal>
 
           <div className="grid lg:grid-cols-2 gap-10 items-start">
-            <div>
-              <h3 className="text-3xl font-bold mb-6">Get in touch</h3>
-              <p className="text-white/50 mb-8 max-w-md">
-                I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
-              </p>
+            <ScrollReveal animation="fade-in-left">
+              <div>
+                <h3 className="text-3xl font-bold mb-6">Get in touch</h3>
+                <p className="text-white/50 mb-8 max-w-md">
+                  I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
+                </p>
 
-              <div className="space-y-4 mb-8">
-                <a href={`mailto:${contactEmail}`} className="flex items-center gap-4 text-left group">
-                  <span className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-white/30 transition-colors">
-                    <Mail size={16} className="text-[#A855F7]" />
-                  </span>
-                  <span className="text-white/80">{contactEmail}</span>
-                </a>
-                <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 text-left group">
-                  <span className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-white/30 transition-colors">
-                    <Phone size={16} className="text-[#3B82F6]" />
-                  </span>
-                  <span className="text-white/80">{contactPhone}</span>
-                </a>
-                <div className="flex items-center gap-4 text-left">
-                  <span className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
-                    <MapPin size={16} className="text-[#10B981]" />
-                  </span>
-                  <span className="text-white/80">{contactLocation}</span>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {socialPills.map((item) => (
-                  <a
-                    key={item.label}
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3 py-1.5 text-sm rounded-md bg-white/5 border border-white/10 text-white/70 hover:text-white hover:border-white/30 transition-colors"
-                  >
-                    {item.label}
+                <div className="space-y-4 mb-8">
+                  <a href={`mailto:${contactEmail}`} className="flex items-center gap-4 text-left group">
+                    <span className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-white/30 transition-colors">
+                      <Mail size={16} className="text-[#A855F7]" />
+                    </span>
+                    <span className="text-white/80">{contactEmail}</span>
                   </a>
-                ))}
+                  <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 text-left group">
+                    <span className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-white/30 transition-colors">
+                      <Phone size={16} className="text-[#3B82F6]" />
+                    </span>
+                    <span className="text-white/80">{contactPhone}</span>
+                  </a>
+                  <div className="flex items-center gap-4 text-left">
+                    <span className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
+                      <MapPin size={16} className="text-[#10B981]" />
+                    </span>
+                    <span className="text-white/80">{contactLocation}</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {socialPills.map((item) => (
+                    <a
+                      key={item.label}
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 text-sm rounded-md bg-white/5 border border-white/10 text-white/70 hover:text-white hover:border-white/30 transition-colors"
+                    >
+                      {item.label}
+                    </a>
+                  ))}
+                </div>
               </div>
-            </div>
+            </ScrollReveal>
 
-            <form
-              onSubmit={handleContactSubmit}
-              className="rounded-2xl p-6 bg-white/5 border border-white/10 backdrop-blur-md"
-            >
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm text-white/70 mb-2">Your Name</label>
-                  <input
-                    type="text"
-                    value={contactForm.name}
-                    onChange={(event) =>
-                      setContactForm((prev) => ({ ...prev, name: event.target.value }))
-                    }
-                    className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:border-white/30"
-                    placeholder="John Doe"
-                    required
-                  />
+            <ScrollReveal animation="fade-in-right">
+              <form
+                onSubmit={handleContactSubmit}
+                className="rounded-2xl p-6 bg-white/5 border border-white/10 backdrop-blur-md"
+              >
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm text-white/70 mb-2">Your Name</label>
+                    <input
+                      type="text"
+                      value={contactForm.name}
+                      onChange={(event) =>
+                        setContactForm((prev) => ({ ...prev, name: event.target.value }))
+                      }
+                      className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:border-white/30"
+                      placeholder="John Doe"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm text-white/70 mb-2">Email Address</label>
+                    <input
+                      type="email"
+                      value={contactForm.email}
+                      onChange={(event) =>
+                        setContactForm((prev) => ({ ...prev, email: event.target.value }))
+                      }
+                      className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:border-white/30"
+                      placeholder="john@example.com"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm text-white/70 mb-2">Message</label>
+                    <textarea
+                      rows={5}
+                      value={contactForm.message}
+                      onChange={(event) =>
+                        setContactForm((prev) => ({ ...prev, message: event.target.value }))
+                      }
+                      className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:border-white/30"
+                      placeholder="Tell me about your project..."
+                      required
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={contactSending}
+                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-[#A855F7] to-[#06B6D4] text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
+                  >
+                    {contactSending ? "Sending..." : "Send Message"}
+                    <ArrowRight size={16} />
+                  </button>
+
+                  {contactFeedback && (
+                    <p className="text-sm text-white/80">{contactFeedback}</p>
+                  )}
                 </div>
-
-                <div>
-                  <label className="block text-sm text-white/70 mb-2">Email Address</label>
-                  <input
-                    type="email"
-                    value={contactForm.email}
-                    onChange={(event) =>
-                      setContactForm((prev) => ({ ...prev, email: event.target.value }))
-                    }
-                    className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:border-white/30"
-                    placeholder="john@example.com"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm text-white/70 mb-2">Message</label>
-                  <textarea
-                    rows={5}
-                    value={contactForm.message}
-                    onChange={(event) =>
-                      setContactForm((prev) => ({ ...prev, message: event.target.value }))
-                    }
-                    className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:border-white/30"
-                    placeholder="Tell me about your project..."
-                    required
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={contactSending}
-                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-[#A855F7] to-[#06B6D4] text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
-                >
-                  {contactSending ? "Sending..." : "Send Message"}
-                  <ArrowRight size={16} />
-                </button>
-
-                {contactFeedback && (
-                  <p className="text-sm text-white/80">{contactFeedback}</p>
-                )}
-              </div>
-            </form>
+              </form>
+            </ScrollReveal>
           </div>
         </div>
       </section>

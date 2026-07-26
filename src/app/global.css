@@ -7,3 +7,95 @@
     @apply outline-none focus:outline-none;
   }
 }
+
+/* Scroll Reveal CSS Animations */
+@keyframes scrollRevealFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scrollRevealFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scrollRevealFadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scrollRevealFadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scrollRevealFadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scrollRevealScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.scroll-reveal-fade-in {
+  opacity: 0;
+  animation-name: scrollRevealFadeIn;
+}
+
+.scroll-reveal-fade-in-up {
+  opacity: 0;
+  animation-name: scrollRevealFadeInUp;
+}
+
+.scroll-reveal-fade-in-down {
+  opacity: 0;
+  animation-name: scrollRevealFadeInDown;
+}
+
+.scroll-reveal-fade-in-left {
+  opacity: 0;
+  animation-name: scrollRevealFadeInLeft;
+}
+
+.scroll-reveal-fade-in-right {
+  opacity: 0;
+  animation-name: scrollRevealFadeInRight;
+}
+
+.scroll-reveal-scale-in {
+  opacity: 0;
+  animation-name: scrollRevealScaleIn;
+}
+
