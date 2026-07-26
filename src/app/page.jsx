@@ -202,7 +202,7 @@ function ProjectCard({ project, projectLink }) {
                  />
                ) : (
                  <video
-                   src={`https://drive.google.com/uc?export=download&id=${driveId}`}
+                   src={`https://drive.usercontent.google.com/download?id=${driveId}&export=download&confirm=t`}
                    autoPlay
                    muted
                    loop
