@@ -114,13 +114,14 @@ function toScore(value, fallback = 80) {
   return fallback;
 }
 
-function getYouTubeEmbedUrl(url) {
+function getYouTubeEmbedUrl(url, origin = "") {
   if (!url) return null;
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
   const match = url.match(regExp);
   if (match && match[2].length === 11) {
     const videoId = match[2];
-    return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&playsinline=1&enablejsapi=1`;
+    const originParam = origin ? `&origin=${encodeURIComponent(origin)}` : "";
+    return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&playsinline=1&enablejsapi=1${originParam}`;
   }
   return null;
 }
@@ -138,7 +139,8 @@ function ProjectCard({ project, projectLink }) {
   const iframeRef = useRef(null);
   const videoRef = useRef(null);
 
-  const youtubeUrl = getYouTubeEmbedUrl(project.video_url);
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const youtubeUrl = getYouTubeEmbedUrl(project.video_url, origin);
   const driveId = getGoogleDriveFileId(project.video_url);
   const isGif = project.video_url && project.video_url.toLowerCase().endsWith(".gif");
 
@@ -260,18 +262,6 @@ function ProjectCard({ project, projectLink }) {
            </div>
          )}
 
-         {/* Volume Toggle Button */}
-         {isHovered && project.video_url && !isGif && (
-           <button
-             type="button"
-             onClick={toggleMute}
-             className="absolute top-4 right-4 z-25 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white flex items-center justify-center hover:bg-black/80 hover:scale-110 active:scale-95 transition-all cursor-pointer"
-             title={isMuted ? "Unmute" : "Mute"}
-           >
-             {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-           </button>
-         )}
-         
          {/* Overlay Content */}
          <div className="absolute inset-0 z-20 flex flex-col justify-end p-8 bg-gradient-to-t from-[#000428] via-[#000428]/50 to-transparent translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
             <div className="flex items-center gap-4">
@@ -299,6 +289,18 @@ function ProjectCard({ project, projectLink }) {
                )}
             </div>
          </div>
+
+         {/* Volume Toggle Button */}
+         {isHovered && project.video_url && !isGif && (
+           <button
+             type="button"
+             onClick={toggleMute}
+             className="absolute top-4 right-4 z-40 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white flex items-center justify-center hover:bg-black/80 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+             title={isMuted ? "Unmute" : "Mute"}
+           >
+             {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+           </button>
+         )}
       </div>
       
       <div className="p-8 border-t border-white/5 bg-[#000428]/95 relative z-20">
