@@ -193,7 +193,7 @@ function ProjectCard({ project, projectLink }) {
              ) : driveId ? (
                isDriveFallback ? (
                  <iframe
-                   src={`https://drive.google.com/file/d/${driveId}/preview`}
+                   src={`https://drive.google.com/file/d/${driveId}/preview?autoplay=1`}
                    className="absolute inset-0 w-full h-full object-cover pointer-events-none"
                    style={{ transform: "scale(1.35)", width: "100%", height: "100%" }}
                    frameBorder="0"
