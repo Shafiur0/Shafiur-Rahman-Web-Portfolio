@@ -194,7 +194,7 @@ function ProjectCard({ project, projectLink }) {
       tabIndex={projectLink ? 0 : undefined}
     >
       <div className="aspect-[4/3] overflow-hidden relative">
-         <div className="absolute inset-0 bg-[#000428]/20 group-hover:bg-transparent transition-colors duration-500 z-10"></div>
+         <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500 z-10"></div>
          
          {/* Static Image / Fallback */}
          {project.image_url ? (
@@ -269,7 +269,7 @@ function ProjectCard({ project, projectLink }) {
          )}
 
           {/* Overlay Content */}
-          <div className="absolute inset-0 z-20 flex flex-col justify-end p-8 bg-gradient-to-t from-[#000428]/80 to-transparent translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+          <div className="absolute inset-0 z-20 flex flex-col justify-end p-8 bg-gradient-to-t from-black/80 to-transparent translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
             <div className="flex items-center gap-4">
                {project.project_url && (
                  <a
