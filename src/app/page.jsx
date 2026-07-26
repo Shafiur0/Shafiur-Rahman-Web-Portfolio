@@ -111,6 +111,177 @@ function toScore(value, fallback = 80) {
   return fallback;
 }
 
+function getYouTubeEmbedUrl(url) {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  if (match && match[2].length === 11) {
+    const videoId = match[2];
+    return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&playsinline=1&enablejsapi=1`;
+  }
+  return null;
+}
+
+function getGoogleDriveFileId(url) {
+  if (!url) return null;
+  const match = url.match(/(?:drive\.google\.com\/(?:file\/d\/|open\?id=)|docs\.google\.com\/file\/d\/)([a-zA-Z0-9_-]+)/);
+  return match ? match[1] : null;
+}
+
+function ProjectCard({ project, projectLink }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isDriveFallback, setIsDriveFallback] = useState(false);
+
+  const youtubeUrl = getYouTubeEmbedUrl(project.video_url);
+  const driveId = getGoogleDriveFileId(project.video_url);
+  const isGif = project.video_url && project.video_url.toLowerCase().endsWith(".gif");
+
+  return (
+    <div
+      className={`group relative rounded-3xl overflow-hidden border border-white/10 bg-white/5 hover:border-white/20 transition-all duration-500 ${projectLink ? "cursor-pointer" : ""}`}
+      onClick={() => {
+        if (projectLink) {
+          window.open(projectLink, "_blank", "noopener,noreferrer");
+        }
+      }}
+      onKeyDown={(event) => {
+        if (!projectLink) return;
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          window.open(projectLink, "_blank", "noopener,noreferrer");
+        }
+      }}
+      onMouseEnter={() => {
+        setIsHovered(true);
+        setIsDriveFallback(false);
+      }}
+      onMouseLeave={() => {
+        setIsHovered(false);
+      }}
+      role={projectLink ? "link" : undefined}
+      tabIndex={projectLink ? 0 : undefined}
+    >
+      <div className="aspect-[4/3] overflow-hidden relative">
+         <div className="absolute inset-0 bg-[#000428]/20 group-hover:bg-transparent transition-colors duration-500 z-10"></div>
+         
+         {/* Static Image / Fallback */}
+         {project.image_url ? (
+           <img
+             src={project.image_url}
+             alt={project.title}
+             className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out"
+           />
+         ) : (
+           <div className="w-full h-full flex items-center justify-center bg-white/5">
+              <Code size={48} className="text-white/20" />
+           </div>
+         )}
+
+         {/* Video Overlay on Hover */}
+         {isHovered && project.video_url && (
+           <div className="absolute inset-0 z-15 pointer-events-none transition-opacity duration-300">
+             {youtubeUrl ? (
+               <iframe
+                 src={youtubeUrl}
+                 className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                 style={{ transform: "scale(1.35)", width: "100%", height: "100%" }}
+                 allow="autoplay; encrypted-media"
+                 frameBorder="0"
+                 title={`${project.title} Preview`}
+               />
+             ) : driveId ? (
+               isDriveFallback ? (
+                 <iframe
+                   src={`https://drive.google.com/file/d/${driveId}/preview`}
+                   className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                   style={{ transform: "scale(1.35)", width: "100%", height: "100%" }}
+                   frameBorder="0"
+                   allow="autoplay"
+                   title={`${project.title} Preview`}
+                 />
+               ) : (
+                 <video
+                   src={`https://drive.google.com/uc?export=download&id=${driveId}`}
+                   autoPlay
+                   muted
+                   loop
+                   playsInline
+                   className="absolute inset-0 w-full h-full object-cover"
+                   onError={() => {
+                     console.log("Direct Google Drive video stream failed/blocked, falling back to embedded iframe preview.");
+                     setIsDriveFallback(true);
+                   }}
+                 />
+               )
+             ) : isGif ? (
+               <img
+                 src={project.video_url}
+                 alt={`${project.title} preview`}
+                 className="absolute inset-0 w-full h-full object-cover"
+               />
+             ) : (
+               <video
+                 src={project.video_url}
+                 autoPlay
+                 muted
+                 loop
+                 playsInline
+                 className="absolute inset-0 w-full h-full object-cover"
+               />
+             )}
+           </div>
+         )}
+         
+         {/* Overlay Content */}
+         <div className="absolute inset-0 z-20 flex flex-col justify-end p-8 bg-gradient-to-t from-[#000428] via-[#000428]/50 to-transparent translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+            <div className="flex items-center gap-4">
+               {project.project_url && (
+                 <a
+                   href={project.project_url}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   onClick={(event) => event.stopPropagation()}
+                   className="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center hover:scale-110 transition-transform"
+                 >
+                    <Eye size={18} />
+                 </a>
+               )}
+               {project.github_url && (
+                 <a
+                   href={project.github_url}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   onClick={(event) => event.stopPropagation()}
+                   className="w-12 h-12 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center border border-white/20 hover:bg-white/30 transition-colors"
+                 >
+                   <Github size={18} />
+                 </a>
+               )}
+            </div>
+         </div>
+      </div>
+      
+      <div className="p-8 border-t border-white/5 bg-[#000428]/95 relative z-20">
+        <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-[#A855F7] transition-colors">{project.title}</h3>
+        <p className="text-white/50 leading-relaxed mb-6 line-clamp-2">{project.description}</p>
+        
+        {project.technologies && project.technologies.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {project.technologies.map((tech, idx) => (
+              <span
+                key={idx}
+                className="px-3 py-1 text-[11px] tracking-wider uppercase font-medium text-white/50 bg-white/5 border border-white/5 rounded-full"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function HomePage() {
   const initialData = useLoaderData();
   console.log("HomePage render initialData:", initialData);
@@ -722,85 +893,13 @@ export default function HomePage() {
                 );
 
                 return (
-                <div
-                  key={project.id}
-                  className={`group relative rounded-3xl overflow-hidden border border-white/10 bg-white/5 hover:border-white/20 transition-all duration-500 ${projectLink ? "cursor-pointer" : ""}`}
-                  onClick={() => {
-                    if (projectLink) {
-                      window.open(projectLink, "_blank", "noopener,noreferrer");
-                    }
-                  }}
-                  onKeyDown={(event) => {
-                    if (!projectLink) return;
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      window.open(projectLink, "_blank", "noopener,noreferrer");
-                    }
-                  }}
-                  role={projectLink ? "link" : undefined}
-                  tabIndex={projectLink ? 0 : undefined}
-                >
-                  <div className="aspect-[4/3] overflow-hidden relative">
-                     <div className="absolute inset-0 bg-[#000428]/20 group-hover:bg-transparent transition-colors duration-500 z-10"></div>
-                     {project.image_url ? (
-                       <img
-                         src={project.image_url}
-                         alt={project.title}
-                         className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out"
-                       />
-                     ) : (
-                       <div className="w-full h-full flex items-center justify-center bg-white/5">
-                          <Code size={48} className="text-white/20" />
-                       </div>
-                     )}
-                     
-                     {/* Overlay Content */}
-                     <div className="absolute inset-0 z-20 flex flex-col justify-end p-8 bg-gradient-to-t from-[#000428] via-[#000428]/50 to-transparent translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-                        <div className="flex items-center gap-4">
-                           {project.project_url && (
-                             <a
-                               href={project.project_url}
-                               target="_blank"
-                               rel="noopener noreferrer"
-                               onClick={(event) => event.stopPropagation()}
-                               className="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center hover:scale-110 transition-transform"
-                             >
-                                <Eye size={18} />
-                             </a>
-                           )}
-                           {project.github_url && (
-                             <a
-                               href={project.github_url}
-                               target="_blank"
-                               rel="noopener noreferrer"
-                               onClick={(event) => event.stopPropagation()}
-                               className="w-12 h-12 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center border border-white/20 hover:bg-white/30 transition-colors"
-                             >
-                               <Github size={18} />
-                             </a>
-                           )}
-                        </div>
-                     </div>
-                  </div>
-                  <div className="p-8 border-t border-white/5">
-                    <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-[#A855F7] transition-colors">{project.title}</h3>
-                    <p className="text-white/50 leading-relaxed mb-6 line-clamp-2">{project.description}</p>
-                    
-                    {project.technologies && project.technologies.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {project.technologies.map((tech, idx) => (
-                          <span
-                            key={idx}
-                            className="px-3 py-1 text-[11px] tracking-wider uppercase font-medium text-white/50 bg-white/5 border border-white/5 rounded-full"
-                          >
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )})}
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    projectLink={projectLink}
+                  />
+                );
+              })}
             </div>
         </div>
       </section>

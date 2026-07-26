@@ -8,6 +8,7 @@ const initialFormData = {
   title: "",
   description: "",
   image_url: "",
+  video_url: "",
   project_url: "",
   github_url: "",
   technologies: "",
@@ -109,6 +110,7 @@ export default function ProjectsManager({ onDataChange }) {
       title: project.title,
       description: project.description || "",
       image_url: project.image_url || "",
+      video_url: project.video_url || "",
       project_url: project.project_url || "",
       github_url: project.github_url || "",
       technologies: project.technologies ? project.technologies.join(", ") : "",
@@ -180,6 +182,16 @@ export default function ProjectsManager({ onDataChange }) {
             className="w-full rounded-lg bg-[#12213e] border border-cyan-500/20 px-4 py-2.5 text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-cyan-400"
             placeholder="Image URL (optional)"
           />
+          <input
+            type="url"
+            value={formData.video_url}
+            onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+            className="w-full rounded-lg bg-[#12213e] border border-cyan-500/20 px-4 py-2.5 text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-cyan-400"
+            placeholder="Video URL (YouTube, Drive, or direct MP4/WebM)"
+          />
+        </div>
+
+        <div className="grid md:grid-cols-1 gap-4">
           <input
             type="text"
             value={formData.technologies}
@@ -331,6 +343,12 @@ export default function ProjectsManager({ onDataChange }) {
                         >
                           <Link2 size={12} /> GitHub
                         </a>
+                      )}
+                      {project.video_url && (
+                        <span className="inline-flex items-center gap-1 text-slate-400 select-none">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                          Demo Video: <span className="text-cyan-300 font-mono max-w-[200px] truncate" title={project.video_url}>{project.video_url}</span>
+                        </span>
                       )}
                     </div>
                   </div>

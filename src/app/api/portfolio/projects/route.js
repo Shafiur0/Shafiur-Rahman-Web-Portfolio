@@ -1,8 +1,19 @@
 import sql from "@/app/api/utils/sql";
 import { createRouteHandlers } from "@/app/api/utils/react-router-method-adapter";
 
+async function ensureProjectsTable() {
+  try {
+    await sql`
+      ALTER TABLE projects ADD COLUMN IF NOT EXISTS video_url TEXT
+    `;
+  } catch (error) {
+    console.error("Error altering projects table to add video_url:", error);
+  }
+}
+
 export async function GET() {
   try {
+    await ensureProjectsTable();
     const projects = await sql`
       SELECT * FROM projects 
       ORDER BY featured DESC, display_order ASC, created_at DESC
@@ -19,11 +30,13 @@ export async function GET() {
 
 export async function POST(request) {
   try {
+    await ensureProjectsTable();
     const body = await request.json();
     const {
       title,
       description,
       image_url,
+      video_url,
       project_url,
       github_url,
       technologies = [],
@@ -36,8 +49,8 @@ export async function POST(request) {
     }
 
     const result = await sql`
-      INSERT INTO projects (title, description, image_url, project_url, github_url, technologies, featured, display_order)
-      VALUES (${title}, ${description}, ${image_url}, ${project_url}, ${github_url}, ${technologies}, ${featured}, ${display_order})
+      INSERT INTO projects (title, description, image_url, video_url, project_url, github_url, technologies, featured, display_order)
+      VALUES (${title}, ${description}, ${image_url}, ${video_url || null}, ${project_url}, ${github_url}, ${technologies}, ${featured}, ${display_order})
       RETURNING *
     `;
 
@@ -53,12 +66,14 @@ export async function POST(request) {
 
 export async function PUT(request) {
   try {
+    await ensureProjectsTable();
     const body = await request.json();
     const {
       id,
       title,
       description,
       image_url,
+      video_url,
       project_url,
       github_url,
       technologies,
@@ -87,6 +102,11 @@ export async function PUT(request) {
     if (image_url !== undefined) {
       updates.push(`image_url = $${paramCount}`);
       values.push(image_url);
+      paramCount++;
+    }
+    if (video_url !== undefined) {
+      updates.push(`video_url = $${paramCount}`);
+      values.push(video_url);
       paramCount++;
     }
     if (project_url !== undefined) {
@@ -141,6 +161,7 @@ export async function PUT(request) {
 
 export async function DELETE(request) {
   try {
+    await ensureProjectsTable();
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 
@@ -168,3 +189,4 @@ export async function loader(args) {
 export async function action(args) {
   return routeHandlers.action(args);
 }
+
