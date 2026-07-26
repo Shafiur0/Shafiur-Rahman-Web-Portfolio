@@ -28,7 +28,9 @@ import {
   ChevronDown,
   Code,
   ArrowRight,
-  X
+  X,
+  Volume2,
+  VolumeX
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -132,10 +134,30 @@ function getGoogleDriveFileId(url) {
 function ProjectCard({ project, projectLink }) {
   const [isHovered, setIsHovered] = useState(false);
   const [isDriveFallback, setIsDriveFallback] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const iframeRef = useRef(null);
+  const videoRef = useRef(null);
 
   const youtubeUrl = getYouTubeEmbedUrl(project.video_url);
   const driveId = getGoogleDriveFileId(project.video_url);
   const isGif = project.video_url && project.video_url.toLowerCase().endsWith(".gif");
+
+  const toggleMute = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const newMuted = !isMuted;
+    setIsMuted(newMuted);
+
+    if (iframeRef.current) {
+      iframeRef.current.contentWindow.postMessage(
+        JSON.stringify({ event: "command", func: newMuted ? "mute" : "unMute", args: [] }),
+        "*"
+      );
+    }
+    if (videoRef.current) {
+      videoRef.current.muted = newMuted;
+    }
+  };
 
   return (
     <div
@@ -158,6 +180,7 @@ function ProjectCard({ project, projectLink }) {
       }}
       onMouseLeave={() => {
         setIsHovered(false);
+        setIsMuted(true);
       }}
       role={projectLink ? "link" : undefined}
       tabIndex={projectLink ? 0 : undefined}
@@ -183,6 +206,7 @@ function ProjectCard({ project, projectLink }) {
            <div className="absolute inset-0 z-15 pointer-events-none transition-opacity duration-300">
              {youtubeUrl ? (
                <iframe
+                 ref={iframeRef}
                  src={youtubeUrl}
                  className="absolute inset-0 w-full h-full object-cover pointer-events-none"
                  style={{ transform: "scale(1.35)", width: "100%", height: "100%" }}
@@ -193,6 +217,7 @@ function ProjectCard({ project, projectLink }) {
              ) : driveId ? (
                isDriveFallback ? (
                  <iframe
+                   ref={iframeRef}
                    src={`https://drive.google.com/file/d/${driveId}/preview?autoplay=1`}
                    className="absolute inset-0 w-full h-full object-cover pointer-events-none"
                    style={{ transform: "scale(1.35)", width: "100%", height: "100%" }}
@@ -202,9 +227,10 @@ function ProjectCard({ project, projectLink }) {
                  />
                ) : (
                  <video
+                   ref={videoRef}
                    src={`https://drive.usercontent.google.com/download?id=${driveId}&export=download&confirm=t`}
                    autoPlay
-                   muted
+                   muted={isMuted}
                    loop
                    playsInline
                    className="absolute inset-0 w-full h-full object-cover"
@@ -222,15 +248,28 @@ function ProjectCard({ project, projectLink }) {
                />
              ) : (
                <video
+                 ref={videoRef}
                  src={project.video_url}
                  autoPlay
-                 muted
+                 muted={isMuted}
                  loop
                  playsInline
                  className="absolute inset-0 w-full h-full object-cover"
                />
              )}
            </div>
+         )}
+
+         {/* Volume Toggle Button */}
+         {isHovered && project.video_url && !isGif && (
+           <button
+             type="button"
+             onClick={toggleMute}
+             className="absolute top-4 right-4 z-25 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white flex items-center justify-center hover:bg-black/80 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+             title={isMuted ? "Unmute" : "Mute"}
+           >
+             {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+           </button>
          )}
          
          {/* Overlay Content */}
